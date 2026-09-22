@@ -252,16 +252,17 @@ const BLEND_STAGES = [
       {co:"b",vo:"a",r:"ba", bd:["bờ","a","ba"], ops:["ba","bo","ma"], em:"👨",mn:"ba (bố)"},
       {co:"b",vo:"o",r:"bo", bd:["bờ","o","bo"], ops:["bo","ba","mo"], em:"🐄",mn:"bò (con bò)"},
       {co:"m",vo:"a",r:"ma", bd:["mờ","a","ma"], ops:["ma","mo","ba"], em:"👩",mn:"ma (mẹ)"},
-      {co:"m",vo:"o",r:"mo", bd:["mờ","o","mo"], ops:["mo","ma","no"], em:"🫧",mn:"mo (mở)"},
+      {co:"m",vo:"o",r:"mo", bd:["mờ","o","mo"], ops:["mo","ma","no"], em:"🍞",mn:"mo (mò, tìm mò)"},
       {co:"n",vo:"a",r:"na", bd:["nờ","a","na"], ops:["na","no","ma"], em:"🍐",mn:"na (quả na)"},
+      {co:"n",vo:"o",r:"no", bd:["nờ","o","no"], ops:["no","na","mo"], em:"🍚",mn:"no (no bụng)"},
     ]},
   { id:2, name:"D, Đ, C, K + e, ê", badge:"⚡", color:"#2D87B8", ua:1,
     lessons:[
       {co:"d",vo:"a",r:"da", bd:["dờ","a","da"], ops:["da","do","đa"], em:"🧴",mn:"da (da thịt)"},
       {co:"đ",vo:"a",r:"đa", bd:["đờ","a","đa"], ops:["đa","đo","da"], em:"🌳",mn:"đa (cây đa)"},
       {co:"c",vo:"a",r:"ca", bd:["cờ","a","ca"], ops:["ca","co","ka"], em:"🎵",mn:"ca (bài ca)"},
-      {co:"k",vo:"e",r:"ke", bd:["cờ","e","ke"], ops:["ke","ka","kê"], em:"🍬",mn:"kẹo (k đi e ê i)"},
-      {co:"d",vo:"ê",r:"dê", bd:["dờ","ê","dê"], ops:["dê","dê","đê"], em:"🐐",mn:"dê (con dê)"},
+      {co:"k",vo:"e",r:"ke", bd:["cờ","e","ke"], ops:["ke","ka","kê"], em:"🔑",mn:"ke (kẹo gừng)"},
+      {co:"d",vo:"ê",r:"dê", bd:["dờ","ê","dê"], ops:["dê","đê","đa"], em:"🐐",mn:"dê (con dê)"},
     ]},
   { id:3, name:"G, H, L + i, u", badge:"🌿", color:"#2D9E68", ua:2,
     lessons:[
@@ -661,7 +662,7 @@ function VowelDetail({ item }) {
         <div style={{textAlign:"center",fontSize:11,color:C.textSub,fontFamily:"Nunito, sans-serif",fontStyle:"italic",padding:"4px 12px",background:`${C.border}88`,borderRadius:10}}>⚠️ Rất hiếm trong tiếng Việt chuẩn</div>
       ):(
         <div style={{display:"flex",justifyContent:"center"}}>
-          <button onClick={()=>speak(item.example)} style={{padding:"9px 22px",borderRadius:20,background:`linear-gradient(135deg,${item.color},${item.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${item.color}44`}}>🔊 Nghe phát âm</button>
+          <button onClick={()=>speak(item.v)} style={{padding:"9px 22px",borderRadius:20,background:`linear-gradient(135deg,${item.color},${item.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${item.color}44`}}>🔊 Nghe phát âm</button>
         </div>
       )}
     </div>
@@ -897,7 +898,15 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
   const [correct,setCorrect]=useState(false);
   const [wrongAnim,setWA]=useState(false);
   const [showPh,setShowPh]=useState(false);
-  const [opts]=useState(()=>[...lesson.ops].sort(()=>Math.random()-.5));
+  const [opts]=useState(()=>{
+    let base = lesson.ops && Array.isArray(lesson.ops) ? [...lesson.ops] : [];
+    // Luôn đảm bảo đáp án đúng lesson.r nằm trong các lựa chọn
+    if (!base.includes(lesson.r)) base = [lesson.r, ...base.slice(0,2)];
+    // Chuẩn hóa: chỉ giữ 3 lựa chọn, bỏ trùng
+    const unique = [];
+    for (const v of base) { if (!unique.includes(v)) unique.push(v); }
+    return unique.slice(0, 3);
+  });
   const ghostRef=useRef(null);
   const dragValRef=useRef(null);
   const draggingRef=useRef(null);
