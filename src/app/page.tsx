@@ -1,4 +1,9 @@
+// @ts-nocheck — file học thuần JSX, type-check sau ở giai đoạn refactor
+
+"use client";
+
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useAuth, useUser, UserButton, SignInButton, SignUpButton } from "@clerk/nextjs";
 
 /* ══════════════════════════════════════════════════════════════
    DESIGN TOKENS
@@ -14,7 +19,7 @@ const C = {
 /* ══════════════════════════════════════════════════════════════
    PROGRESS SYSTEM  (localStorage)
 ══════════════════════════════════════════════════════════════ */
-const STORAGE_KEY = "vla_v2";
+const STORAGE_PREFIX = "vla_v2";
 const defaultProgress = {
   learnedLetters: [],   // ["A","B",...]
   streak: 0,
@@ -28,12 +33,16 @@ const defaultProgress = {
   blendXP: 0,
 };
 
-function loadProgress() {
-  try { const s = localStorage.getItem(STORAGE_KEY); return s ? { ...defaultProgress, ...JSON.parse(s) } : { ...defaultProgress }; }
+function storageKeyFor(userId) {
+  return userId ? `${STORAGE_PREFIX}_${userId}` : `${STORAGE_PREFIX}_guest`;
+}
+
+function loadProgress(userId) {
+  try { const s = localStorage.getItem(storageKeyFor(userId)); return s ? { ...defaultProgress, ...JSON.parse(s) } : { ...defaultProgress }; }
   catch { return { ...defaultProgress }; }
 }
-function saveProgress(p) {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); } catch {}
+function saveProgress(userId, p) {
+  try { localStorage.setItem(storageKeyFor(userId), JSON.stringify(p)); } catch {}
 }
 function todayStr() { const d = new Date(); const y = d.getFullYear(); const m = String(d.getMonth()+1).padStart(2,"0"); const day = String(d.getDate()).padStart(2,"0"); return `${y}-${m}-${day}`; }
 
@@ -387,7 +396,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
   const greeting = streak >= 3 ? `🔥 ${streak} ngày liên tục!` : "Xin chào bé! ☀️";
 
   const mascotMsg = mascotMood === "celebrating" ? "Bé học giỏi quá! 🎉"
-                  : mascotMood === "sleeping"     ? "Cáo Mây đang ngủ... 💤"
+                  : mascotMood === "sleeping"     ? "San Hô đang ngủ... 💤"
                   : learnedLetters.length === 0   ? "Bắt đầu học nào bé ơi! 🌟"
                   : `Bé đã học ${learnedLetters.length}/29 chữ! 💪`;
 
@@ -413,7 +422,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
         <Mascot size={72} mood={mascotMood} />
         <div style={{flex:1}}>
           <div style={{fontSize:15,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",lineHeight:1.3}}>{mascotMsg}</div>
-          <div style={{fontSize:11,color:"rgba(255,255,255,0.85)",marginTop:3,fontFamily:"Nunito, sans-serif"}}>Cáo Mây đang chờ bé!</div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,0.85)",marginTop:3,fontFamily:"Nunito, sans-serif"}}>San Hô đang chờ bé!</div>
           {/* Global progress bar */}
           <div style={{marginTop:8,background:"rgba(0,0,0,0.15)",borderRadius:10,height:8,overflow:"hidden"}}>
             <div style={{height:"100%",width:`${(learnedLetters.length/29)*100}%`,background:"linear-gradient(90deg, #FFD93D, #FFB870)",borderRadius:10,transition:"width 0.5s ease"}}/>
@@ -1123,14 +1132,25 @@ const NAV = [
 ];
 
 export default function App() {
+  const { isLoaded, isSignedIn, userId } = useAuth();
+  const { user } = useUser();
   const [screen, setScreen]         = useState("home");
   const [startStage, setStartStage] = useState(null);
   const [mascotMood, setMascotMood] = useState("happy");
-  const [progress, setProgress]     = useState(loadProgress);
+  const [progress, setProgress]     = useState(defaultProgress);
+  const [loadedUid, setLoadedUid]   = useState(null);
+
+  // Nạp tiến độ theo tài khoản khi đăng nhập
+  useEffect(() => {
+    if (isLoaded && isSignedIn && userId && loadedUid !== userId) {
+      setProgress(loadProgress(userId));
+      setLoadedUid(userId);
+    }
+  }, [isLoaded, isSignedIn, userId, loadedUid]);
 
   // Streak logic on mount
   // Auto-save bất cứ khi nào progress thay đổi
-  useEffect(() => { saveProgress(progress); }, [progress]);
+  useEffect(() => { if (loadedUid) saveProgress(loadedUid, progress); }, [progress, loadedUid]);
 
   useEffect(() => {
     const today = todayStr();
@@ -1145,9 +1165,17 @@ export default function App() {
   function updateProgress(patch) {
     setProgress(prev => {
       const next = {...prev, ...patch};
-      saveProgress(next);
+      if (loadedUid) saveProgress(loadedUid, next);
       return next;
     });
+  }
+
+  // Chưa đăng nhập → màn đăng nhập
+  if (isLoaded && !isSignedIn) {
+    return <WelcomeScreen />;
+  }
+  if (!isLoaded || !userId) {
+    return <div style={{ minHeight:"100vh", background:C.bg }} />;
   }
 
   const handleLearnLetter = useCallback((letter) => {
@@ -1169,10 +1197,10 @@ export default function App() {
       // Unlock stickers every 5 letters
       const stickersOwned = Array.from({length:Math.min(Math.floor(learnedLetters.length/5),STICKERS.length)},(_,i)=>i);
       const next = {...prev, learnedLetters, totalStars, earnedBadges: newBadges, stickersOwned};
-      saveProgress(next);
+      if (loadedUid) saveProgress(loadedUid, next);
       return next;
     });
-  }, []);
+  }, [loadedUid]);
 
   const handleCompleteBlendLesson = useCallback((stageId, lessonIdx) => {
     setProgress(prev => {
@@ -1186,9 +1214,10 @@ export default function App() {
         setTimeout(()=>{setMascotMood("celebrating");setTimeout(()=>setMascotMood("happy"),4000);},400);
       }
       const next={...prev,blendCompleted,blendStages,blendXP:(prev.blendXP||0)+10,totalStars:(prev.totalStars||0)+2};
-      saveProgress(next);return next;
+      if (loadedUid) saveProgress(loadedUid, next);
+      return next;
     });
-  }, []);
+  }, [loadedUid]);
 
   const handleNavigate = (screenId, stageId = null) => {
     setScreen(screenId);
@@ -1269,6 +1298,12 @@ export default function App() {
 
         {/* Footer */}
         <div style={{padding:"12px 16px",borderTop:`1px solid ${C.border}`,fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",lineHeight:1.6}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+            <UserButton />
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:11,fontWeight:800,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.fullName || user?.primaryEmailAddress?.emailAddress || "Bạn nhỏ"}</div>
+            </div>
+          </div>
           <div style={{fontWeight:700,color:C.text,marginBottom:2}}>Phòng Học Tiếng Việt</div>
           Học vần theo phương pháp<br/>phonics chuẩn tiểu học 🇻🇳
         </div>
@@ -1286,6 +1321,32 @@ export default function App() {
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
         </div>
       </main>
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════════════════════════
+   WELCOME SCREEN — màn đăng nhập / đăng ký
+══════════════════════════════════════════════════════════ */
+function WelcomeScreen() {
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 24, background: "linear-gradient(135deg,#6EC6B3 0%,#5BB5A0 50%,#FFB870 100%)" }}>
+      <div style={{ maxWidth: 420, width: "100%", background: C.white, borderRadius: 28, padding: "32px 28px", boxShadow: "0 12px 48px rgba(0,0,0,0.18)", textAlign: "center" }}>
+        <div style={{ fontSize: 60, lineHeight: 1 }}>🐚</div>
+        <div style={{ fontSize: 24, fontWeight: 900, color: C.text, fontFamily: "Nunito, sans-serif", marginTop: 8 }}>Học Tiếng Việt cùng San Hô</div>
+        <div style={{ fontSize: 14, color: C.textSub, fontFamily: "Nunito, sans-serif", marginTop: 6, lineHeight: 1.5 }}>
+          Ráp âm thành vần, học mà chơi!<br />Đăng nhập để San Hô nhớ tiến độ của bé nhé 🐚
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 24 }}>
+          <SignInButton mode="modal">
+            <button style={{ height: 50, borderRadius: 24, background: "linear-gradient(135deg,#FF9EB5,#FF6859)", border: "none", cursor: "pointer", fontSize: 15, fontWeight: 900, color: C.white, fontFamily: "Nunito, sans-serif", boxShadow: "0 4px 16px rgba(255,104,89,0.4)" }}>Đăng nhập</button>
+          </SignInButton>
+          <SignUpButton mode="modal">
+            <button style={{ height: 50, borderRadius: 24, background: C.white, border: `2px solid ${C.mint}`, cursor: "pointer", fontSize: 15, fontWeight: 900, color: C.mint, fontFamily: "Nunito, sans-serif" }}>Tạo tài khoản mới</button>
+          </SignUpButton>
+        </div>
+        <div style={{ fontSize: 11, color: C.textSub, fontFamily: "Nunito, sans-serif", marginTop: 18 }}>Đăng nhập bằng Email hoặc Google 🇻🇳</div>
+      </div>
     </div>
   );
 }

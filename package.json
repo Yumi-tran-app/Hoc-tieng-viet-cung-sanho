@@ -1,19 +1,32 @@
 {
   "name": "hoc-tieng-viet-cung-sanho",
-  "private": true,
   "version": "1.0.0",
-  "type": "module",
+  "private": true,
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "prisma generate && next build",
+    "start": "next start",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "@clerk/nextjs": "^6.39.6",
+    "@prisma/client": "^5.22.0",
+    "next": "^15.5.6",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8"
   },
   "devDependencies": {
-    "@vitejs/plugin-react": "^4.3.4",
-    "vite": "^5.4.11"
+    "@types/node": "^20.16.11",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "prisma": "^5.22.0",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3"
   }
 }

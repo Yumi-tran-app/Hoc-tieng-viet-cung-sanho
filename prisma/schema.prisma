@@ -1,0 +1,51 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id          String   @id @default(uuid()) @db.Uuid
+  fullName    String   @map("full_name")
+  email       String   @unique
+  clerkUserId String?  @unique @map("clerk_user_id")
+  authProvider String  @default("clerk") @map("auth_provider")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  progress Progress?
+
+  @@map("users")
+}
+
+model Progress {
+  id          String   @id @default(uuid()) @db.Uuid
+  userId      String   @unique @map("user_id") @db.Uuid
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Học chữ cái
+  learnedLetters String[] @default([]) @map("learned_letters")
+  totalStars     Int      @default(0) @map("total_stars")
+
+  // Streak
+  streak         Int      @default(0)
+  lastDate       String?  @map("last_date")
+
+  // Huy hiệu + sticker
+  earnedBadges   Int[]    @default([]) @map("earned_badges")
+  stickersOwned  Int[]    @default([]) @map("stickers_owned")
+
+  // Phòng Ghép Chữ
+  blendCompleted Json?    @map("blend_completed")
+  blendStages    Int[]    @default([]) @map("blend_stages")
+  blendXP        Int      @default(0) @map("blend_xp")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("progress")
+}
