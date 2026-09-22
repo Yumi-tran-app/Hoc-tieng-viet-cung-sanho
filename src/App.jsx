@@ -442,7 +442,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
         <div style={{display:"flex",flexDirection:"column",gap:9}}>
           {stageProgress.map((stage, si) => (
             <div key={stage.id}
-              onClick={() => !stage.locked && onNavigate("blend", stage.id)}
+              onClick={() => !stage.locked && onNavigate("blend")}
               style={{background:stage.locked?"#F8F8F8":C.white,borderRadius:20,padding:"12px 14px",display:"flex",alignItems:"center",gap:12,boxShadow:stage.locked?"none":"0 2px 14px rgba(0,0,0,0.07)",cursor:stage.locked?"not-allowed":"pointer",opacity:stage.locked?0.6:1,border:`2px solid ${stage.locked?C.border:"transparent"}`,animation:`fadeSlideIn 0.3s ease ${si*0.06}s both`}}>
               <div style={{width:46,height:46,borderRadius:15,fontSize:stage.locked?18:22,display:"flex",alignItems:"center",justifyContent:"center",background:stage.locked?"#F0F0F0":`${stage.color}22`,flexShrink:0}}>
                 {stage.locked?"🔒":stage.full?"✅":stage.badge}
@@ -570,14 +570,8 @@ function AlphabetScreen({ onNavigate, progress, onLearnLetter, setMood, startSta
           {letter.letter}
         </div>
 
-        {/* ── Phonics 3-column row ── */}
+        {/* ── Phonics 2-column row ── */}
         <div style={{display:"flex",gap:8,marginBottom:14,width:"100%"}}>
-          {/* Tên chữ */}
-          <div style={{flex:1,background:`${letter.color}12`,borderRadius:16,padding:"10px 8px",textAlign:"center"}}>
-            <div style={{fontSize:9,fontWeight:800,color:letter.color,fontFamily:"Nunito, sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Tên chữ</div>
-            <div style={{fontSize:20,fontWeight:900,color:letter.color,fontFamily:"Baloo 2, Nunito, sans-serif"}}>{letter.letterName}</div>
-            <button onClick={() => speak(letter.letterName, true)} style={{marginTop:4,background:"none",border:"none",cursor:"pointer",fontSize:14}}>🔊</button>
-          </div>
           {/* Âm vị */}
           <div style={{flex:1,background:"#F8F6FF",borderRadius:16,padding:"10px 8px",textAlign:"center"}}>
             <div style={{fontSize:9,fontWeight:800,color:C.lavender,fontFamily:"Nunito, sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Âm đọc</div>
@@ -1013,15 +1007,14 @@ function BlendStageDone({stage,onContinue,onBack}){
   );
 }
 
-function BlendScreen({onNavigate,progress,onCompleteBlendLesson,startStage}){
+function BlendScreen({onNavigate,progress,onCompleteBlendLesson}){
   const [view,setView]=useState("map");
-  const [stageId,setStId]=useState(startStage||null);
+  const [stageId,setStId]=useState(null);
   const [lessonIdx,setLIdx]=useState(0);
   const stage=BLEND_STAGES.find(s=>s.id===stageId);
   function startStage(id){const st=BLEND_STAGES.find(s=>s.id===id);const first=st.lessons.findIndex((_,i)=>!progress.blendCompleted?.[id+"-"+i]);setStId(id);setLIdx(first<0?0:first);setView("lesson");}
   function handleNext(){if(lessonIdx+1>=stage.lessons.length)setView("done");else setLIdx(i=>i+1);}
   function handleContinue(){const next=BLEND_STAGES.find(s=>s.id===stageId+1);if(next)startStage(next.id);else setView("map");}
-  useEffect(()=>{ if(startStage && view==="map") startStage(startStage); }, [startStage]);
   if(view==="map"||!stage)return <BlendStageMap stages={BLEND_STAGES} progress={progress} onSelect={startStage} onBack={()=>onNavigate("home")}/>;
   if(view==="lesson")return <BlendLesson stage={stage} lessonIdx={lessonIdx} progress={progress} onCorrect={onCompleteBlendLesson} onNext={handleNext} onBack={()=>setView("map")}/>;
   if(view==="done")return <BlendStageDone stage={stage} onContinue={handleContinue} onBack={()=>setView("map")}/>;
@@ -1289,7 +1282,7 @@ export default function App() {
           {screen==="vowels"     && <VowelsScreen     onNavigate={handleNavigate}/>}
           {screen==="consonants" && <ConsonantsScreen onNavigate={handleNavigate}/>}
           {screen==="tones"      && <TonesScreen      onNavigate={handleNavigate}/>}
-          {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson} startStage={startStage}/>}
+          {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson}/>}
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
         </div>
       </main>
