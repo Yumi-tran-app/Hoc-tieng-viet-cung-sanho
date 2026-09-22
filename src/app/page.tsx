@@ -1139,6 +1139,9 @@ export default function App() {
   const [mascotMood, setMascotMood] = useState("happy");
   const [progress, setProgress]     = useState(defaultProgress);
   const [loadedUid, setLoadedUid]   = useState(null);
+  const [mounted, setMounted]       = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Nạp tiến độ theo tài khoản khi đăng nhập
   useEffect(() => {
@@ -1170,6 +1173,10 @@ export default function App() {
     });
   }
 
+  // Chưa mount (SSR/hydrate) → render placeholder trống, tránh hydration mismatch
+  if (!mounted) {
+    return <div style={{ minHeight: "100vh", background: C.bg }} />;
+  }
   // Chưa đăng nhập → màn đăng nhập
   if (isLoaded && !isSignedIn) {
     return <WelcomeScreen />;
