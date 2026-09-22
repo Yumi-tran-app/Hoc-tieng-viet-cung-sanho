@@ -156,36 +156,36 @@ const VOWELS_QUINT = [
 ];
 
 const CONSONANTS_SIMPLE = [
-  {c:"b",example:"bé",   emoji:"👶",color:"#B8A1FF"},
-  {c:"c",example:"cá",   emoji:"🐟",color:"#6EC6B3"},
-  {c:"d",example:"dưa",  emoji:"🍉",color:"#FFD93D"},
-  {c:"đ",example:"đèn",  emoji:"💡",color:"#FFB870"},
-  {c:"g",example:"gà",   emoji:"🐔",color:"#FF9EB5"},
-  {c:"h",example:"hoa",  emoji:"🌸",color:"#FF9EB5"},
-  {c:"k",example:"kẹo",  emoji:"🍬",color:"#FFD93D"},
-  {c:"l",example:"lá",   emoji:"🍃",color:"#6EC6B3"},
-  {c:"m",example:"mèo",  emoji:"🐱",color:"#B8A1FF"},
-  {c:"n",example:"nước", emoji:"💧",color:"#87CEEB"},
-  {c:"p",example:"pin",  emoji:"🔋",color:"#6EC6B3"},
-  {c:"q",example:"quả",  emoji:"🍎",color:"#FF9EB5"},
-  {c:"r",example:"rùa",  emoji:"🐢",color:"#6EC6B3"},
-  {c:"s",example:"sao",  emoji:"⭐",color:"#FFD93D"},
-  {c:"t",example:"thỏ",  emoji:"🐇",color:"#FF9EB5"},
-  {c:"v",example:"vịt",  emoji:"🦆",color:"#6EC6B3"},
-  {c:"x",example:"xe",   emoji:"🚗",color:"#FFB870"},
+  {c:"b",sound:"bờ",example:"bé",   emoji:"👶",color:"#B8A1FF"},
+  {c:"c",sound:"cờ",example:"cá",   emoji:"🐟",color:"#6EC6B3"},
+  {c:"d",sound:"dờ",example:"dưa",  emoji:"🍉",color:"#FFD93D"},
+  {c:"đ",sound:"đờ",example:"đèn",  emoji:"💡",color:"#FFB870"},
+  {c:"g",sound:"gờ",example:"gà",   emoji:"🐔",color:"#FF9EB5"},
+  {c:"h",sound:"hờ",example:"hoa",  emoji:"🌸",color:"#FF9EB5"},
+  {c:"k",sound:"cờ",example:"kẹo",  emoji:"🍬",color:"#FFD93D"},
+  {c:"l",sound:"lờ",example:"lá",   emoji:"🍃",color:"#6EC6B3"},
+  {c:"m",sound:"mờ",example:"mèo",  emoji:"🐱",color:"#B8A1FF"},
+  {c:"n",sound:"nờ",example:"nước", emoji:"💧",color:"#87CEEB"},
+  {c:"p",sound:"pờ",example:"pin",  emoji:"🔋",color:"#6EC6B3"},
+  {c:"q",sound:"quờ",example:"quả", emoji:"🍎",color:"#FF9EB5"},
+  {c:"r",sound:"rờ",example:"rùa",  emoji:"🐢",color:"#6EC6B3"},
+  {c:"s",sound:"sờ",example:"sao",  emoji:"⭐",color:"#FFD93D"},
+  {c:"t",sound:"tờ",example:"thỏ",  emoji:"🐇",color:"#FF9EB5"},
+  {c:"v",sound:"vờ",example:"vịt",  emoji:"🦆",color:"#6EC6B3"},
+  {c:"x",sound:"xờ",example:"xe",   emoji:"🚗",color:"#FFB870"},
 ];
 const CONSONANTS_COMPOUND = [
-  {c:"ch", example:"chim",  emoji:"🐦",color:"#6EC6B3",note:"c+h",  rule:null},
-  {c:"gh", example:"ghế",   emoji:"🪑",color:"#FFB870",note:"g+h",  rule:"front",ruleNote:"gh chỉ đi với e, ê, i"},
-  {c:"gi", example:"giỏ",   emoji:"🧺",color:"#FF9EB5",note:"g+i",  rule:null,   ruleNote:"gi đọc như 'z' (Bắc) hoặc 'y' (Nam)"},
-  {c:"kh", example:"khỉ",   emoji:"🐒",color:"#B8A1FF",note:"k+h",  rule:null},
-  {c:"ng", example:"ngà",   emoji:"🐘",color:"#FFD93D",note:"n+g",  rule:"back", ruleNote:"ng không đi với e, ê, i"},
-  {c:"ngh",example:"nghỉ",  emoji:"😴",color:"#87CEEB",note:"n+g+h",rule:"front",ruleNote:"ngh chỉ đi với e, ê, i"},
-  {c:"nh", example:"nhà",   emoji:"🏠",color:"#FF9EB5",note:"n+h",  rule:null},
-  {c:"ph", example:"phở",   emoji:"🍜",color:"#6EC6B3",note:"p+h",  rule:null},
-  {c:"qu", example:"quạt",  emoji:"🪭",color:"#FFD93D",note:"q+u",  rule:null,   ruleNote:"qu luôn đi kèm chữ u"},
-  {c:"th", example:"thỏ",   emoji:"🐇",color:"#FF9EB5",note:"t+h",  rule:null},
-  {c:"tr", example:"trăng", emoji:"🌙",color:"#B8A1FF",note:"t+r",  rule:null},
+  {c:"ch", sound:"chờ", example:"chim",  emoji:"🐦",color:"#6EC6B3",note:"c+h",  rule:null},
+  {c:"gh", sound:"gờ",  example:"ghế",   emoji:"🪑",color:"#FFB870",note:"g+h",  rule:"front",ruleNote:"gh chỉ đi với e, ê, i"},
+  {c:"gi", sound:"giờ", example:"giỏ",   emoji:"🧺",color:"#FF9EB5",note:"g+i",  rule:null,   ruleNote:"gi đọc như 'z' (Bắc) hoặc 'y' (Nam)"},
+  {c:"kh", sound:"khờ", example:"khỉ",   emoji:"🐒",color:"#B8A1FF",note:"k+h",  rule:null},
+  {c:"ng", sound:"ngờ", example:"ngà",   emoji:"🐘",color:"#FFD93D",note:"n+g",  rule:"back", ruleNote:"ng không đi với e, ê, i"},
+  {c:"ngh",sound:"ngờ", example:"nghỉ",  emoji:"😴",color:"#87CEEB",note:"n+g+h",rule:"front",ruleNote:"ngh chỉ đi với e, ê, i"},
+  {c:"nh", sound:"nhờ", example:"nhà",   emoji:"🏠",color:"#FF9EB5",note:"n+h",  rule:null},
+  {c:"ph", sound:"phờ", example:"phở",   emoji:"🍜",color:"#6EC6B3",note:"p+h",  rule:null},
+  {c:"qu", sound:"quờ", example:"quạt",  emoji:"🪭",color:"#FFD93D",note:"q+u",  rule:null,   ruleNote:"qu luôn đi kèm chữ u"},
+  {c:"th", sound:"thờ", example:"thỏ",   emoji:"🐇",color:"#FF9EB5",note:"t+h",  rule:null},
+  {c:"tr", sound:"trờ", example:"trăng", emoji:"🌙",color:"#B8A1FF",note:"t+r",  rule:null},
 ];
 
 const TONES = [
@@ -586,7 +586,7 @@ function AlphabetScreen({ onNavigate, progress, onLearnLetter, setMood, startSta
           <div style={{flex:1,background:"#F8F6FF",borderRadius:16,padding:"10px 8px",textAlign:"center"}}>
             <div style={{fontSize:9,fontWeight:800,color:C.lavender,fontFamily:"Nunito, sans-serif",marginBottom:3,textTransform:"uppercase",letterSpacing:0.5}}>Âm đọc</div>
             <div style={{fontSize:15,fontWeight:800,color:C.text,fontFamily:"Nunito, sans-serif"}}>{letter.sound}</div>
-            <button onClick={() => speak(letter.lower, true)} style={{marginTop:4,background:"none",border:"none",cursor:"pointer",fontSize:14}}>🔊</button>
+            <button onClick={() => speak(letter.sound.replace("âm ",""), true)} style={{marginTop:4,background:"none",border:"none",cursor:"pointer",fontSize:14}}>🔊</button>
           </div>
           {/* Ví dụ */}
           <div style={{flex:1.2,background:"#F0FDF8",borderRadius:16,padding:"10px 8px",textAlign:"center"}}>
@@ -781,10 +781,10 @@ function ConsonantsScreen({ onNavigate }) {
               <div style={{fontSize:44,fontWeight:900,color:selected.color,fontFamily:"Baloo 2, Nunito, sans-serif"}}>{selected.c}</div>
               <div style={{fontSize:36}}>{selected.emoji}</div>
             </div>
-            <div style={{fontSize:14,fontWeight:700,color:C.text,fontFamily:"Nunito, sans-serif"}}>Ví dụ: <span style={{color:selected.color}}>{selected.example}</span></div>
+            <div style={{fontSize:14,fontWeight:700,color:C.text,fontFamily:"Nunito, sans-serif"}}>Âm: <span style={{color:selected.color}}>{selected.sound}</span> · Ví dụ: <span style={{color:selected.color}}>{selected.example}</span></div>
             {selected.note&&<div style={{fontSize:11,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:2}}>Ghép từ: <b>{selected.note}</b></div>}
             {selected.ruleNote&&<div style={{marginTop:4,fontSize:10,color:"#B8860B",background:"#FFF3CD",borderRadius:8,padding:"2px 8px",display:"inline-block"}}>💡 {selected.ruleNote}</div>}
-            <button onClick={()=>speak(selected.c+" "+selected.example)} style={{marginTop:10,padding:"9px 24px",borderRadius:20,background:`linear-gradient(135deg,${selected.color},${selected.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${selected.color}44`}}>🔊 Nghe phát âm</button>
+            <button onClick={()=>speak(selected.sound + " " + selected.example)} style={{marginTop:10,padding:"9px 24px",borderRadius:20,background:`linear-gradient(135deg,${selected.color},${selected.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${selected.color}44`}}>🔊 Nghe phát âm</button>
           </div>
         ):(
           <div style={{textAlign:"center"}}><div style={{fontSize:30}}>👆</div><div style={{fontSize:12,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:5}}>Chọn một phụ âm để xem</div></div>
