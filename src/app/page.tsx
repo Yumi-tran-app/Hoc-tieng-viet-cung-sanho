@@ -1173,24 +1173,11 @@ export default function App() {
     });
   }
 
-  // Chưa mount (SSR/hydrate) → render placeholder trống, tránh hydration mismatch
-  if (!mounted) {
-    return <div style={{ minHeight: "100vh", background: C.bg }} />;
-  }
-  // Chưa đăng nhập → màn đăng nhập
-  if (isLoaded && !isSignedIn) {
-    return <WelcomeScreen />;
-  }
-  if (!isLoaded || !userId) {
-    return <div style={{ minHeight:"100vh", background:C.bg }} />;
-  }
-
   const handleLearnLetter = useCallback((letter) => {
     setProgress(prev => {
       if (prev.learnedLetters.includes(letter)) return prev;
       const learnedLetters = [...prev.learnedLetters, letter];
       const totalStars = learnedLetters.length;
-      // Check if any stage is now complete
       const newBadges = [...prev.earnedBadges];
       STAGES.forEach(stage => {
         if (!newBadges.includes(stage.id) && stage.letters.every(l => learnedLetters.includes(l))) {
@@ -1201,7 +1188,6 @@ export default function App() {
           }, 500);
         }
       });
-      // Unlock stickers every 5 letters
       const stickersOwned = Array.from({length:Math.min(Math.floor(learnedLetters.length/5),STICKERS.length)},(_,i)=>i);
       const next = {...prev, learnedLetters, totalStars, earnedBadges: newBadges, stickersOwned};
       if (loadedUid) saveProgress(loadedUid, next);
@@ -1230,6 +1216,18 @@ export default function App() {
     setScreen(screenId);
     setStartStage(stageId);
   };
+
+  // Chưa mount (SSR/hydrate) → render placeholder trống, tránh hydration mismatch
+  if (!mounted) {
+    return <div style={{ minHeight: "100vh", background: C.bg }} />;
+  }
+  // Chưa đăng nhập → màn đăng nhập
+  if (isLoaded && !isSignedIn) {
+    return <WelcomeScreen />;
+  }
+  if (!isLoaded || !userId) {
+    return <div style={{ minHeight:"100vh", background:C.bg }} />;
+  }
 
   return (
     <div style={{display:"flex",height:"100vh",background:C.bg,fontFamily:"Nunito, sans-serif",overflow:"hidden"}}>
