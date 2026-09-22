@@ -197,6 +197,39 @@ const TONES = [
   {name:"Nặng",  mark:"ạ", symbol:"·",example:"cạ",  meaning:"cạ vào tường",   color:"#87CEEB",path:"M 50 18 L 50 72 M 44 78 L 56 78",     svgDesc:"Nặng, đứt giọng xuống thấp"},
 ];
 
+// Danh sách nhận diện âm (cho bé chưa thuộc mặt chữ): nghe âm → chọn đúng chữ
+const RECOGNITION_ITEMS = [
+  { letter:"a", sound:"a" },
+  { letter:"o", sound:"o" },
+  { letter:"ô", sound:"ô" },
+  { letter:"ơ", sound:"ơ" },
+  { letter:"e", sound:"e" },
+  { letter:"ê", sound:"ê" },
+  { letter:"i", sound:"i" },
+  { letter:"u", sound:"u" },
+  { letter:"ư", sound:"ư" },
+  { letter:"b", sound:"bờ" },
+  { letter:"m", sound:"mờ" },
+  { letter:"n", sound:"nờ" },
+  { letter:"t", sound:"tờ" },
+  { letter:"d", sound:"dờ" },
+  { letter:"đ", sound:"đờ" },
+  { letter:"c", sound:"cờ" },
+  { letter:"k", sound:"cờ" },
+  { letter:"g", sound:"gờ" },
+  { letter:"h", sound:"hờ" },
+  { letter:"l", sound:"lờ" },
+  { letter:"s", sound:"sờ" },
+  { letter:"x", sound:"xờ" },
+  { letter:"v", sound:"vờ" },
+  { letter:"r", sound:"rờ" },
+];
+function pickDistractors(correct, count=3){
+  const pool = RECOGNITION_ITEMS.filter(x=>x.letter!==correct.letter);
+  const shuffled = [...pool].sort(()=>0.5-Math.random()).slice(0,count-1);
+  return [correct, ...shuffled].sort(()=>0.5-Math.random());
+}
+
 /* ══════════════════════════════════════════════════════════════
    WEB SPEECH API
 ══════════════════════════════════════════════════════════════ */
@@ -488,6 +521,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
           {[
             {id:"vowels",icon:"🗣️",title:"Nguyên Âm",sub:"Đơn · Đôi · Ba · Bốn",color:"#FFB870"},
             {id:"consonants",icon:"📢",title:"Phụ Âm",sub:"17 đơn + 11 ghép",color:"#B8A1FF"},
+            {id:"recognize",icon:"👂",title:"Nhận Diện Âm",sub:"Nghe → chọn chữ",color:"#FF9EB5"},
             {id:"tones",icon:"🎵",title:"Thanh Điệu",sub:"6 thanh tiếng Việt",color:"#FFD93D"},
             {id:"alphabet",icon:"🔤",title:"Bảng Chữ Cái",sub:"29 chữ + âm đọc",color:"#6EC6B3"},
           ].map(m => (
@@ -794,6 +828,96 @@ function ConsonantsScreen({ onNavigate }) {
   );
 }
 
+/* ══════════════════════════════════════════════════════════
+   RECOGNITION SCREEN — nghe âm → chọn đúng chữ
+══════════════════════════════════════════════════════════ */
+function RecognitionScreen({ onNavigate }) {
+  const [idx, setIdx] = useState(0);
+  const [opts, setOpts] = useState(() => pickDistractors(RECOGNITION_ITEMS[0]));
+  const [picked, setPicked] = useState(null);
+  const [score, setScore] = useState(0);
+  const [streak, setStreak] = useState(0);
+  const current = RECOGNITION_ITEMS[idx];
+
+  function next(){
+    const ni = (idx + 1) % RECOGNITION_ITEMS.length;
+    setIdx(ni);
+    setOpts(pickDistractors(RECOGNITION_ITEMS[ni]));
+    setPicked(null);
+  }
+  function choose(it){
+    if (picked) return;
+    setPicked(it);
+    if (it.letter === current.letter) {
+      playChime(true);
+      setScore(s => s + 1);
+      setStreak(s => s + 1);
+    } else {
+      playChime(false);
+      setStreak(0);
+    }
+  }
+
+  return (
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "24px 32px 12px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+        <BackBtn onBack={() => onNavigate("home")} />
+        <div style={{ fontSize: 16, fontWeight: 900, color: C.text, fontFamily: "Nunito, sans-serif" }}>👂 Nhận Diện Âm</div>
+        <div style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, color: C.mint, fontFamily: "Nunito, sans-serif" }}>{score} đúng</div>
+      </div>
+
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "0 32px" }}>
+        <div style={{ textAlign: "center" }}>
+          <div style={{ fontSize: 13, color: C.textSub, fontFamily: "Nunito, sans-serif", marginBottom: 8 }}>Nghe âm này nhé 👇</div>
+          <button onClick={() => speak(current.sound, true)}
+            style={{ width: 120, height: 120, borderRadius: 60, background: "linear-gradient(135deg,#FFB870,#FF9EB5)", border: "none", cursor: "pointer", fontSize: 48, boxShadow: "0 6px 20px rgba(255,184,112,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            🔊
+          </button>
+          <div style={{ fontSize: 12, color: C.textSub, fontFamily: "Nunito, sans-serif", marginTop: 8 }}>Bấm loa để nghe lại</div>
+        </div>
+
+        <div style={{ fontSize: 13, fontWeight: 700, color: C.text, fontFamily: "Nunito, sans-serif" }}>Chữ nào có âm vừa nghe?</div>
+
+        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+          {opts.map((it) => {
+            const isCorrect = picked && it.letter === current.letter;
+            const isWrong   = picked && picked.letter === it.letter && it.letter !== current.letter;
+            return (
+              <button key={it.letter} onClick={() => choose(it)}
+                style={{
+                  width: 96, height: 96, borderRadius: 24, fontSize: 44, fontWeight: 900,
+                  fontFamily: "Baloo 2, Nunito, sans-serif",
+                  background: isCorrect ? "#6EC6B3" : isWrong ? "#FF9EB5" : C.white,
+                  color: (isCorrect || isWrong) ? C.white : C.text,
+                  border: "3px solid " + (isCorrect ? "#6EC6B3" : isWrong ? "#FF9EB5" : C.border),
+                  cursor: picked ? "default" : "pointer",
+                  boxShadow: "0 3px 12px rgba(0,0,0,0.08)",
+                  transition: "all .2s",
+                  animation: isCorrect ? "pop .3s cubic-bezier(.34,1.56,.64,1)" : "none",
+                }}
+              >
+                {it.letter.toUpperCase()}
+              </button>
+            );
+          })}
+        </div>
+
+        {picked && (
+          <div style={{ textAlign: "center", animation: "fadeSlideIn .3s ease" }}>
+            <div style={{ fontSize: 16, fontWeight: 900, fontFamily: "Nunito, sans-serif", color: picked.letter === current.letter ? C.mint : "#D94F3A" }}>
+              {picked.letter === current.letter ? "Giỏi quá! 🎉" : "Thử lại nhé 💪"}
+            </div>
+            <button onClick={next}
+              style={{ marginTop: 12, padding: "10px 28px", borderRadius: 22, background: "linear-gradient(135deg,#6EC6B3,#5BB5A0)", border: "none", cursor: "pointer", fontSize: 14, fontWeight: 900, color: C.white, fontFamily: "Nunito, sans-serif", boxShadow: "0 4px 14px rgba(110,198,179,0.4)" }}>
+              Âm tiếp theo →
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ══════════════════════════════════════════════════════════════
    TONES SCREEN
 ══════════════════════════════════════════════════════════════ */
@@ -969,7 +1093,12 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
               const bg=isRes?BL.resBg:isTone?"#F3EFFE":i===0?BL.consBg:BL.vowBg;
               const cl=isRes?BL.res:isTone?"#7B5EA7":i===0?BL.cons:BL.vow;
               const bd=isRes?BL.resBdr:isTone?"#C4AEED":i===0?BL.consBdr:BL.vowBdr;
-              return <span key={i} style={{padding:"3px 9px",borderRadius:16,fontSize:12,fontWeight:700,background:bg,color:cl,border:"1.5px solid "+bd,animation:"fadeSlideIn .3s ease "+(i*.1)+"s both"}}>{p}</span>;
+              return (
+                <span key={i} style={{display:"inline-flex",alignItems:"center",gap:5}}>
+                  {i>0&&i<lesson.bd.length&&<span style={{fontSize:12,color:C.textSub,fontWeight:900}}>+</span>}
+                  <span style={{padding:"3px 9px",borderRadius:16,fontSize:12,fontWeight:700,background:bg,color:cl,border:"1.5px solid "+bd,animation:"fadeSlideIn .3s ease "+(i*.1)+"s both"}}>{p}</span>
+                </span>
+              );
             })}
           </div>
         )}
@@ -1134,6 +1263,7 @@ const GLOBAL_STYLES = `
 const NAV = [
   {id:"home",      icon:"🏠",label:"Trang chủ"},
   {id:"blend",     icon:"🔗",label:"Ghép âm"},
+  {id:"recognize", icon:"👂",label:"Nhận diện"},
   {id:"alphabet",  icon:"🔤",label:"Chữ cái"},
   {id:"vowels",    icon:"🗣️",label:"Nguyên âm"},
   {id:"consonants",icon:"📢",label:"Phụ âm"},
@@ -1332,6 +1462,7 @@ export default function App() {
           {screen==="consonants" && <ConsonantsScreen onNavigate={handleNavigate}/>}
           {screen==="tones"      && <TonesScreen      onNavigate={handleNavigate}/>}
           {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson}/>}
+          {screen==="recognize"  && <RecognitionScreen onNavigate={handleNavigate}/>}
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
         </div>
       </main>
