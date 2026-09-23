@@ -1596,8 +1596,13 @@ export default function App() {
   const [progress, setProgress]     = useState(defaultProgress);
   const [loadedUid, setLoadedUid]   = useState(null);
   const [mounted, setMounted]       = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => { setMounted(true); }, []);
+  // Tự mở/sạt sidebar theo kích thước màn hình (mobile mặc định sạt)
+  useEffect(() => {
+    if (typeof window !== "undefined") setSidebarOpen(window.innerWidth >= 768);
+  }, []);
 
   // Nạp tiến độ theo tài khoản khi đăng nhập
   useEffect(() => {
@@ -1744,20 +1749,27 @@ export default function App() {
         .nav-item.active{background:${C.mint}18!important;color:${C.mint}!important}
       `}</style>
 
-      {/* ── SIDEBAR ─────────────────────────────────────────── */}
-      <aside style={{width:220,background:C.white,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",height:"100vh",overflowY:"auto",flexShrink:0,boxShadow:"2px 0 12px rgba(0,0,0,0.05)"}}>
+      {/* ── SIDEBAR ─────────────────────────────────────── */}
+      <aside style={{width:sidebarOpen?220:64,background:C.white,borderRight:`1px solid ${C.border}`,display:"flex",flexDirection:"column",height:"100vh",overflowY:"auto",overflowX:"hidden",flexShrink:0,boxShadow:"2px 0 12px rgba(0,0,0,0.05)",transition:"width .22s ease"}}>
+
+        {/* Toggle */}
+        <div onClick={()=>setSidebarOpen(v=>!v)} style={{margin:"12px 10px 2px",height:38,borderRadius:12,background:C.bg,border:"1px solid "+C.border,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:18,flexShrink:0,userSelect:"none"}} title={sidebarOpen?"Thu gọn menu":"Mở rộng menu"}>
+          ☰
+        </div>
 
         {/* Brand */}
-        <div style={{padding:"24px 20px 16px",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
-            <Mascot size={52} mood={mascotMood} bounce={mascotMood!=="sleeping"}/>
+        <div style={{padding:sidebarOpen?"8px 20px 16px":"8px 0 16px",borderBottom:`1px solid ${C.border}`}}>
+          <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:sidebarOpen?14:0,justifyContent:sidebarOpen?"flex-start":"center"}}>
+            <Mascot size={sidebarOpen?52:40} mood={mascotMood} bounce={mascotMood!=="sleeping"}/>
+            {sidebarOpen && (
             <div>
               <div style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Phòng Học</div>
               <div style={{fontSize:13,fontWeight:900,color:C.mint,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Tiếng Việt</div>
             </div>
+            )}
           </div>
 
-          {/* Progress summary */}
+          {sidebarOpen && (
           <div style={{background:C.bg,borderRadius:14,padding:"10px 12px",display:"flex",alignItems:"center",gap:10}}>
             <div style={{flex:1}}>
               <div style={{fontSize:10,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:4}}>Tiến độ</div>
@@ -1771,24 +1783,27 @@ export default function App() {
               <div style={{fontSize:9,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>🔥 ngày</div>
             </div>
           </div>
+          )}
         </div>
 
         {/* Nav */}
-        <nav style={{flex:1,padding:"12px 12px",display:"flex",flexDirection:"column",gap:4}}>
+        <nav style={{flex:1,padding:"12px 10px",display:"flex",flexDirection:"column",gap:4}}>
           {[...NAV,{id:"reward",icon:"🏆",label:"Kho báu"}].map(item=>(
             <div key={item.id} className={`nav-item${screen===item.id?" active":""}`}
               onClick={()=>setScreen(item.id)}
-              style={{display:"flex",alignItems:"center",gap:11,padding:"11px 14px",borderRadius:14,cursor:"pointer",transition:"all .18s",
+              title={item.label}
+              style={{display:"flex",alignItems:"center",gap:11,padding:sidebarOpen?"11px 14px":"11px 0",borderRadius:14,cursor:"pointer",transition:"all .18s",justifyContent:sidebarOpen?"flex-start":"center",
                 background:screen===item.id?`${C.mint}18`:"transparent",
                 color:screen===item.id?C.mint:C.textSub}}>
               <span style={{fontSize:19,flexShrink:0}}>{item.icon}</span>
-              <span style={{fontSize:13,fontWeight:screen===item.id?800:600,fontFamily:"Nunito, sans-serif"}}>{item.label}</span>
-              {screen===item.id&&<div style={{marginLeft:"auto",width:4,height:20,borderRadius:2,background:C.mint}}/>}
+              {sidebarOpen && <span style={{fontSize:13,fontWeight:screen===item.id?800:600,fontFamily:"Nunito, sans-serif"}}>{item.label}</span>}
+              {sidebarOpen && screen===item.id && <div style={{marginLeft:"auto",width:4,height:20,borderRadius:2,background:C.mint}}/>}
             </div>
           ))}
         </nav>
 
         {/* Footer */}
+        {sidebarOpen ? (
         <div style={{padding:"12px 16px",borderTop:`1px solid ${C.border}`,fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",lineHeight:1.6}}>
           <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
             <UserButton />
@@ -1799,6 +1814,11 @@ export default function App() {
           <div style={{fontWeight:700,color:C.text,marginBottom:2}}>Phòng Học Tiếng Việt</div>
           Học vần theo phương pháp<br/>phonics chuẩn tiểu học 🇻🇳
         </div>
+        ) : (
+        <div style={{padding:"12px 0",borderTop:`1px solid ${C.border}`,display:"flex",justifyContent:"center"}}>
+          <UserButton />
+        </div>
+        )}
       </aside>
 
       {/* ── MAIN CONTENT ────────────────────────────────────── */}
