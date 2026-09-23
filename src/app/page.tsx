@@ -421,8 +421,8 @@ const TONE_SHORT={à:"huyền",á:"sắc",ả:"hỏi",ã:"ngã",ạ:"nặng",ằ
 
 function getViVoice(){const a=window.speechSynthesis?.getVoices()||[];const v=a.filter(x=>x.lang.startsWith("vi"));if(!v.length)return null;return v.find(x=>/nam|female|south/i.test(x.name))||v.find(x=>/wavenet-[bd]|neural2-[bd]/i.test(x.name))||v[1]||v[0];}
 function speakWord(text,rate=0.8){if(!("speechSynthesis"in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const vi=getViVoice();if(vi)u.voice=vi;u.lang="vi-VN";u.rate=rate;u.pitch=1.0;u.volume=1.0;window.speechSynthesis.speak(u);}
-function speakPhonics(lesson){const raw=lesson.vo;const base=TONE_STRIP[raw]||raw;const tone=TONE_SHORT[raw];if(lesson.standalone){speakWord(lesson.r,0.6);return;}const baseSyl=lesson.co+base;const cons=lesson.co+"ờ";const parts=tone?[cons,base,baseSyl,tone]:[cons,base,baseSyl];speakWord(parts.join(" , "),0.65);}
-function playChime(ok){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();if(ok){[[523.25,0],[659.25,0.12],[783.99,0.24]].forEach(([f,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+d);g.gain.linearRampToValueAtTime(0.18,ctx.currentTime+d+0.025);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d+0.55);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.6);});}else{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(330,ctx.currentTime);o.frequency.linearRampToValueAtTime(220,ctx.currentTime+0.25);g.gain.setValueAtTime(0,ctx.currentTime);g.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.03);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.4);}}catch(e){}}
+function speakPhonics(lesson){const raw=lesson.vo;const base=TONE_STRIP[raw]||raw;const tone=TONE_SHORT[raw];if(lesson.standalone){speakWord(lesson.r,0.6);return;}const baseSyl=lesson.co+base;const cons=lesson.co+"ờ";const parts=tone?[cons,base,baseSyl,tone,lesson.r]:[cons,base,baseSyl];speakWord(parts.join(" , "),0.65);}
+function playChime(ok){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();if(ok){[[523.25,0],[659.25,0.12],[783.99,0.24],[1046.5,0.36]].forEach(([f,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+d);g.gain.linearRampToValueAtTime(0.3,ctx.currentTime+d+0.025);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d+0.55);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.6);});}else{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(330,ctx.currentTime);o.frequency.linearRampToValueAtTime(220,ctx.currentTime+0.25);g.gain.setValueAtTime(0,ctx.currentTime);g.gain.linearRampToValueAtTime(0.2,ctx.currentTime+0.03);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.4);}}catch(e){}}
 
 /* ══════════════════════════════════════════════════════════════
    MASCOT — personality system
@@ -1016,26 +1016,19 @@ function RecognitionScreen({ onNavigate }) {
   }
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
-      <div style={{ padding: "24px 32px 12px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-        <BackBtn onBack={() => onNavigate("home")} />
-        <div style={{ fontSize: 16, fontWeight: 900, color: C.text, fontFamily: "Nunito, sans-serif" }}>👂 Nhận Diện Âm</div>
-        <div style={{ marginLeft: "auto", fontSize: 12, fontWeight: 800, color: C.mint, fontFamily: "Nunito, sans-serif" }}>{score} đúng</div>
-      </div>
-
-      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24, padding: "0 32px" }}>
+    <div style={{ flex:1, display: "flex", flexDirection: "column", alignItems: "center", padding: "8px 24px 16px", gap: 14 }}>
         <div style={{ textAlign: "center" }}>
-          <div style={{ fontSize: 13, color: C.textSub, fontFamily: "Nunito, sans-serif", marginBottom: 8 }}>Nghe âm này nhé 👇</div>
+          <div style={{ fontSize: 13, color: C.textSub, fontFamily: "Nunito, sans-serif", marginBottom: 6 }}>Nghe âm này nhé 👇</div>
           <button onClick={() => speak(current.sound, true)}
-            style={{ width: 120, height: 120, borderRadius: 60, background: "linear-gradient(135deg,#FFB870,#FF9EB5)", border: "none", cursor: "pointer", fontSize: 48, boxShadow: "0 6px 20px rgba(255,184,112,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            style={{ width: 90, height: 90, borderRadius: 45, background: "linear-gradient(135deg,#FFB870,#FF9EB5)", border: "none", cursor: "pointer", fontSize: 38, boxShadow: "0 6px 20px rgba(255,184,112,0.45)", display: "flex", alignItems: "center", justifyContent: "center" }}>
             🔊
           </button>
-          <div style={{ fontSize: 12, color: C.textSub, fontFamily: "Nunito, sans-serif", marginTop: 8 }}>Bấm loa để nghe lại</div>
+          <div style={{ fontSize: 12, color: C.textSub, fontFamily: "Nunito, sans-serif", marginTop: 6 }}>Bấm loa để nghe lại</div>
         </div>
 
         <div style={{ fontSize: 13, fontWeight: 700, color: C.text, fontFamily: "Nunito, sans-serif" }}>Chữ nào có âm vừa nghe?</div>
 
-        <div style={{ display: "flex", gap: 16, flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap", justifyContent: "center" }}>
           {opts.map((it) => {
             const isCorrect = picked && it.letter === current.letter;
             const isWrong   = picked && picked.letter === it.letter && it.letter !== current.letter;
@@ -1070,7 +1063,6 @@ function RecognitionScreen({ onNavigate }) {
             </button>
           </div>
         )}
-      </div>
     </div>
   );
 }
@@ -1179,27 +1171,26 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
   const [correct,setCorrect]=useState(false);
   const [wrongAnim,setWA]=useState(false);
   const [showPh,setShowPh]=useState(false);
-  const [opts]=useState(()=>{
+  function buildOpts(){
     let base = lesson.ops && Array.isArray(lesson.ops) ? [...lesson.ops] : [];
-    // Luôn đảm bảo đáp án đúng lesson.r nằm trong các lựa chọn
     if (!base.includes(lesson.r)) base = [lesson.r, ...base.slice(0,2)];
-    // Chuẩn hóa: chỉ giữ 3 lựa chọn, bỏ trùng
     const unique = [];
     for (const v of base) { if (!unique.includes(v)) unique.push(v); }
     return unique.slice(0, 3);
-  });
+  }
+  const [opts,setOpts]=useState(buildOpts);
   const ghostRef=useRef(null);
   const dragValRef=useRef(null);
   const draggingRef=useRef(null);
   const dropZRef=useRef(null);
 
-  useEffect(()=>{setDropped(false);setCorrect(false);setWA(false);setShowPh(false);},[lessonIdx,stage.id]);
+  useEffect(()=>{setDropped(false);setCorrect(false);setWA(false);setShowPh(false);setOpts(buildOpts());},[lessonIdx,stage.id]);
 
   function drop(val){
     if(dropped)return;setDropped(true);
     const a=String(val||"").trim();
     const b=String(lesson.r||"").trim();
-    if(a===b){setCorrect(true);setShowPh(true);playChime(true);setTimeout(()=>speakPhonics(lesson),500);onCorrect(stage.id,lessonIdx);}
+    if(a===b){setCorrect(true);setShowPh(true);playChime(true);setTimeout(()=>{speakWord("Giỏi quá! ",0.9);setTimeout(()=>speakPhonics(lesson),900);},300);onCorrect(stage.id,lessonIdx);}
     else{setWA(true);playChime(false);setTimeout(()=>{setDropped(false);setWA(false);},1600);}
   }
   // Bé có thể TAP chọn đáp án (không cần kéo-thả) — fix lỗi mobile kẹt không qua bước được
