@@ -280,54 +280,75 @@ function applyTone(vowelStr, toneIdx) {
    PHÒNG GHÉP CHỮ — DATA & AUDIO ENGINE
 ══════════════════════════════════════════════════════════════ */
 const BLEND_STAGES = [
-  { id:1, name:"B, M, N, T + a, o", badge:"🌱", color:"#D94F3A",
+  { id:1, name:"Giai đoạn 1 · Âm đơn & dấu thanh", badge:"🌱", color:"#2D9E68", sub:"b, c, d, đ + a, e, ê, o, ô, ơ",
     lessons:[
       {co:"b",vo:"a",r:"ba", bd:["bờ","a","ba"], ops:["ba","bo","ma"], em:"👨",mn:"ba (bố)"},
-      {co:"b",vo:"o",r:"bo", bd:["bờ","o","bo"], ops:["bo","ba","mo"], em:"🐄",mn:"bò (con bò)"},
-      {co:"m",vo:"a",r:"ma", bd:["mờ","a","ma"], ops:["ma","mo","ba"], em:"👩",mn:"ma (mẹ)"},
-      {co:"m",vo:"o",r:"mo", bd:["mờ","o","mo"], ops:["mo","ma","no"], em:"🍞",mn:"mo (mò, tìm mò)"},
-      {co:"n",vo:"a",r:"na", bd:["nờ","a","na"], ops:["na","no","ma"], em:"🍐",mn:"na (quả na)"},
-      {co:"n",vo:"o",r:"no", bd:["nờ","o","no"], ops:["no","na","mo"], em:"🍚",mn:"no (no bụng)"},
+      {co:"b",vo:"à",r:"bà", bd:["bờ","a","ba","huyền","bà"], ops:["bà","ba","mà"], em:"👵",mn:"bà (bà ngoại)"},
+      {co:"c",vo:"a",r:"ca", bd:["cờ","a","ca"], ops:["ca","co","ba"], em:"🎵",mn:"ca (bài ca)"},
+      {co:"c",vo:"á",r:"cá", bd:["cờ","a","ca","sắc","cá"], ops:["cá","ca","cà"], em:"🐟",mn:"cá (con cá)"},
+      {co:"c",vo:"ờ",r:"cờ", bd:["cờ","ơ","cơ","huyền","cờ"], ops:["cờ","cơ","cà"], em:"🚩",mn:"cờ (lá cờ)"},
+      {co:"c",vo:"ổ",r:"cổ", bd:["cờ","ô","cô","hỏi","cổ"], ops:["cổ","cô","cồ"], em:"🦒",mn:"cổ (cái cổ)"},
+      {co:"b",vo:"ô",r:"bô", bd:["bờ","ô","bô"], ops:["bô","bo","bơ"], em:"👮",mn:"bô (chú bộ đội)"},
+      {co:"b",vo:"e",r:"be", bd:["bờ","e","be"], ops:["be","ba","me"], em:"👶",mn:"be bé"},
+      {co:"đ",vo:"a",r:"đa", bd:["đờ","a","đa"], ops:["đa","da","đo"], em:"🌳",mn:"đa (cây đa)"},
+      {co:"d",vo:"ê",r:"dê", bd:["dờ","ê","dê"], ops:["dê","đê","bê"], em:"🐐",mn:"dê (con dê)"},
+      {co:"đ",vo:"e",r:"đe", bd:["đờ","e","đe"], ops:["đe","đa","de"], em:"🔨",mn:"đe (cái đe)"},
+      {co:"b",vo:"ê",r:"bê", bd:["bờ","ê","bê"], ops:["bê","be","đê"], em:"🐄",mn:"bê (bê con)"},
     ]},
-  { id:2, name:"D, Đ, C, K + e, ê", badge:"⚡", color:"#2D87B8", ua:1,
+  { id:2, name:"Giai đoạn 2 · Phụ âm ghép & chính tả", badge:"🌿", color:"#2D87B8", sub:"ch, gh, gi, kh, nh, ng, ngh, ph, qu, th, tr", ua:1,
     lessons:[
-      {co:"d",vo:"a",r:"da", bd:["dờ","a","da"], ops:["da","do","đa"], em:"🧴",mn:"da (da thịt)"},
-      {co:"đ",vo:"a",r:"đa", bd:["đờ","a","đa"], ops:["đa","đo","da"], em:"🌳",mn:"đa (cây đa)"},
-      {co:"c",vo:"a",r:"ca", bd:["cờ","a","ca"], ops:["ca","co","ka"], em:"🎵",mn:"ca (bài ca)"},
-      {co:"k",vo:"e",r:"ke", bd:["cờ","e","ke"], ops:["ke","ka","kê"], em:"🔑",mn:"ke (kẹo gừng)"},
-      {co:"d",vo:"ê",r:"dê", bd:["dờ","ê","dê"], ops:["dê","đê","đa"], em:"🐐",mn:"dê (con dê)"},
+      {co:"ch",vo:"ơ",r:"chợ", bd:["chờ","ơ","chơ","nặng","chợ"], ops:["chợ","chơ","chờ"], em:"🏪",mn:"chợ (đi chợ)"},
+      {co:"gh",vo:"ê",r:"ghế", bd:["gờ","ê","ghê","sắc","ghế"], ops:["ghế","ghe","ghê"], em:"🪑",mn:"ghế (cái ghế)"},
+      {co:"gi",vo:"o",r:"giỏ", bd:["giờ","o","gio","hỏi","giỏ"], ops:["giỏ","giò","gis"], em:"🧺",mn:"giỏ (cái giỏ)"},
+      {co:"kh",vo:"ê",r:"khế", bd:["khờ","ê","khê","sắc","khế"], ops:["khế","khê","khẹ"], em:"⭐",mn:"khế (quả khế)"},
+      {co:"nh",vo:"à",r:"nhà", bd:["nhờ","a","nha","huyền","nhà"], ops:["nhà","nha","nhá"], em:"🏠",mn:"nhà (ngôi nhà)"},
+      {co:"ng",vo:"ô",r:"ngô", bd:["ngờ","ô","ngô"], ops:["ngô","ngo","ngồ"], em:"🌽",mn:"ngô (bắp ngô)"},
+      {co:"ngh",vo:"ệ",r:"nghệ", bd:["ngờ","ê","nghê","nặng","nghệ"], ops:["nghệ","nghê","nghè"], em:"🌿",mn:"nghệ (củ nghệ)"},
+      {co:"ph",vo:"ở",r:"phở", bd:["phờ","ơ","phơ","hỏi","phở"], ops:["phở","phơ","phò"], em:"🍜",mn:"phở (bát phở)"},
+      {co:"qu",vo:"ả",r:"quả", bd:["quờ","a","qua","hỏi","quả"], ops:["quả","qua","quà"], em:"🍎",mn:"quả (trái quả)"},
+      {co:"th",vo:"ỏ",r:"thỏ", bd:["thờ","o","tho","hỏi","thỏ"], ops:["thỏ","tho","thồ"], em:"🐇",mn:"thỏ (con thỏ)"},
+      {co:"tr",vo:"e",r:"tre", bd:["trờ","e","tre"], ops:["tre","tra","chè"], em:"🎋",mn:"tre (cây tre)"},
     ]},
-  { id:3, name:"G, H, L + i, u", badge:"🌿", color:"#2D9E68", ua:2,
+  { id:3, name:"Giai đoạn 3 · Vần có âm cuối phụ âm", badge:"🌳", color:"#E8900A", sub:"an, ăn, ân, on, ôm, em, im, ap, at, ac, ang, ong, anh...", ua:2,
     lessons:[
-      {co:"g",vo:"a",r:"ga", bd:["gờ","a","ga"], ops:["ga","go","ha"], em:"🚉",mn:"ga (nhà ga)"},
-      {co:"h",vo:"a",r:"ha", bd:["hờ","a","ha"], ops:["ha","ho","ga"], em:"😄",mn:"ha ha"},
-      {co:"l",vo:"a",r:"la", bd:["lờ","a","la"], ops:["la","lo","ha"], em:"🎶",mn:"la (hát la)"},
-      {co:"l",vo:"i",r:"li", bd:["lờ","i","li"], ops:["li","la","mi"], em:"🔮",mn:"li ti (nhỏ)"},
-      {co:"l",vo:"u",r:"lu", bd:["lờ","u","lu"], ops:["lu","la","su"], em:"🛞",mn:"lu (lu bù)"},
+      {co:"m",vo:"ăng",r:"măng", bd:["mờ","ăng","măng"], ops:["măng","mang","mâng"], em:"🎍",mn:"măng (măng tre)"},
+      {co:"n",vo:"ấm",r:"nấm", bd:["nờ","âm","nâm","sắc","nấm"], ops:["nấm","nâm","nậm"], em:"🍄",mn:"nấm (cây nấm)"},
+      {co:"c",vo:"am",r:"cam", bd:["cờ","am","cam"], ops:["cam","căm","can"], em:"🍊",mn:"cam (quả cam)"},
+      {co:"th",vo:"áp",r:"tháp", bd:["thờ","ap","thap","sắc","tháp"], ops:["tháp","thap","thạp"], em:"🗼",mn:"tháp (toà tháp)"},
+      {co:"c",vo:"át",r:"cát", bd:["cờ","at","cat","sắc","cát"], ops:["cát","cat","cạc"], em:"🏖️",mn:"cát (bãi cát)"},
+      {co:"c",vo:"oc",r:"cóc", bd:["cờ","oc","coc","sắc","cóc"], ops:["cóc","coc","cọc"], em:"🐸",mn:"cóc (con cóc)"},
+      {co:"g",vo:"ấc",r:"gấc", bd:["gờ","âc","gâc","sắc","gấc"], ops:["gấc","gâc","gậc"], em:"🎃",mn:"gấc (quả gấc)"},
+      {co:"l",vo:"àng",r:"làng", bd:["lờ","ang","lang","huyền","làng"], ops:["làng","lang","lảng"], em:"🏘️",mn:"làng (làng quê)"},
+      {co:"x",vo:"à",r:"xà", bd:["xờ","a","xa","huyền","xà"], ops:["xà","xa","xạ"], em:"🏗️",mn:"xà (xà kênh)"},
+      {co:"c",vo:"on",r:"con", bd:["cờ","on","con"], ops:["con","côn","can"], em:"👶",mn:"con (đứa con)"},
+      {co:"t",vo:"ôm",r:"tôm", bd:["tờ","ôm","tôm"], ops:["tôm","tom","tốm"], em:"🦐",mn:"tôm (con tôm)"},
+      {co:"h",vo:"ọc",r:"học", bd:["hờ","oc","hoc","nặng","học"], ops:["học","hoc","hộc"], em:"📚",mn:"học (học bài)"},
     ]},
-  { id:4, name:"V, S, X + ô, ơ", badge:"⭐", color:"#E8900A", ua:3,
+  { id:4, name:"Giai đoạn 4 · Bán âm cuối & nguyên âm đôi", badge:"🌼", color:"#7B5EA7", sub:"ai, ay, ây, oi, ôi, ao, au + ia, ua, ưa, iê, uô, ươ", ua:3,
     lessons:[
-      {co:"v",vo:"o",r:"vo", bd:["vờ","o","vo"], ops:["vo","va","so"], em:"💧",mn:"vo (vo gạo)"},
-      {co:"s",vo:"o",r:"so", bd:["sờ","o","so"], ops:["so","sa","vo"], em:"📏",mn:"so (so sánh)"},
-      {co:"x",vo:"a",r:"xa", bd:["xờ","a","xa"], ops:["xa","xo","sa"], em:"🏞️",mn:"xa (xa xôi)"},
-      {co:"t",vo:"ô",r:"tô", bd:["tờ","ô","tô"], ops:["tô","to","vô"], em:"🚗",mn:"tô (ô tô)"},
-      {co:"n",vo:"ơ",r:"nơ", bd:["nờ","ơ","nơ"], ops:["nơ","no","mơ"], em:"🎀",mn:"nơ (cái nơ)"},
+      {co:"g",vo:"à",r:"gà", bd:["gờ","a","ga","huyền","gà"], ops:["gà","ga","gạ"], em:"🐔",mn:"gà (gà mái)"},
+      {co:"m",vo:"ai",r:"mai", bd:["mờ","ai","mai"], ops:["mai","mài","may"], em:"🌅",mn:"mai (ngày mai)"},
+      {co:"b",vo:"ay",r:"bay", bd:["bờ","ay","bay"], ops:["bay","bày","bai"], em:"✈️",mn:"bay (máy bay)"},
+      {co:"c",vo:"òi",r:"còi", bd:["cờ","oi","coi","huyền","còi"], ops:["còi","coi","cội"], em:"🔔",mn:"còi (cái còi)"},
+      {co:"s",vo:"ao",r:"sao", bd:["sờ","ao","sao"], ops:["sao","sào","xao"], em:"⭐",mn:"sao (ngôi sao)"},
+      {co:"l",vo:"ều",r:"lều", bd:["lờ","êu","lêu","huyền","lều"], ops:["lều","lêu","lệu"], em:"⛺",mn:"lều (lều vải)"},
+      {co:"h",vo:"ươu",r:"hươu", bd:["hờ","ươu","hươu"], ops:["hươu","hưu","hượu"], em:"🦌",mn:"hươu (con hươu)"},
+      {co:"ch",vo:"ia",r:"chia", bd:["chờ","ia","chia"], ops:["chia","chìa","cha"], em:"➗",mn:"chia (chia quà)"},
+      {co:"m",vo:"ua",r:"mua", bd:["mờ","ua","mua"], ops:["mua","mùa","ma"], em:"🛒",mn:"mua (mua mía)"},
+      {co:"m",vo:"ía",r:"mía", bd:["mờ","ia","mia","sắc","mía"], ops:["mía","mia","mìa"], em:"🎋",mn:"mía (cây mía)"},
+      {co:"c",vo:"uộn",r:"cuộn", bd:["cờ","uôn","cuôn","nặng","cuộn"], ops:["cuộn","cuôn","cuộc"], em:"🧵",mn:"cuộn (cuộn chỉ)"},
+      {co:"ư",vo:"a",r:"ưa", bd:["ư","a","ưa"], ops:["ưa","ư","ua"], em:"❤️",mn:"ưa (ưa thích)"},
     ]},
-  { id:5, name:"CH, KH, TH", badge:"🏆", color:"#7B5EA7", ua:4,
+  { id:5, name:"Giai đoạn 5 · Ôn tập & đánh giá cuối kỳ", badge:"👑", color:"#D94F3A", sub:"Đọc trơn toàn bộ vần + đoạn 30-50 từ", ua:4,
     lessons:[
-      {co:"ch",vo:"a",r:"cha", bd:["chờ","a","cha"], ops:["cha","ca","kha"], em:"👨\u200d👧",mn:"cha (bố)"},
-      {co:"kh",vo:"i",r:"khi", bd:["khờ","i","khi"], ops:["khi","kha","kho"], em:"⏱️",mn:"khi (khi nào)"},
-      {co:"th",vo:"a",r:"tha", bd:["thờ","a","tha"], ops:["tha","kha","cha"], em:"🙏",mn:"tha (tha thứ)"},
-      {co:"th",vo:"ơ",r:"thơ", bd:["thờ","ơ","thơ"], ops:["thơ","tho","tha"], em:"📝",mn:"thơ (bài thơ)"},
-      {co:"ch",vo:"i",r:"chi", bd:["chờ","i","chi"], ops:["chi","chê","chu"], em:"💰",mn:"chi (chi tiêu)"},
-    ]},
-  { id:6, name:"Tổng hợp thử thách", badge:"👑", color:"#D94F3A", ua:5,
-    lessons:[
-      {co:"nh",vo:"à",r:"nhà", bd:["nhờ","a","nha","huyền","nhà"], ops:["nhà","cha","kha"], em:"🏠",mn:"nhà (ngôi nhà)"},
-      {co:"ph",vo:"a",r:"pha", bd:["phờ","a","pha"], ops:["pha","kha","tha"], em:"🧪",mn:"pha (pha màu)"},
-      {co:"tr",vo:"a",r:"tra", bd:["trờ","a","tra"], ops:["tra","tha","cha"], em:"🍵",mn:"trà (uống trà)"},
-      {co:"c", vo:"ơ",r:"cơ", bd:["cờ","ơ","cơ"],  ops:["cơ","ca","cu"],  em:"💪",mn:"cơ (cơ bắp)"},
-      {co:"b", vo:"ê",r:"bê", bd:["bờ","ê","bê"],  ops:["bê","be","bô"],  em:"🐄",mn:"bê (bê con)"},
+      {co:"đ",vo:"ọc",r:"đọc", bd:["đờ","oc","đoc","nặng","đọc"], ops:["đọc","đoc","độc"], em:"📖",mn:"đọc (đọc sách)"},
+      {co:"v",vo:"iết",r:"viết", bd:["vờ","iêt","viêt","sắc","viết"], ops:["viết","viêt","việc"], em:"✍️",mn:"viết (viết chữ)"},
+      {co:"tr",vo:"ơn",r:"trơn", bd:["trờ","ơn","trơn"], ops:["trơn","trờn","chơn"], em:"🛝",mn:"trơn (đọc trơn)"},
+      {co:"b",vo:"ạn",r:"bạn", bd:["bờ","an","ban","nặng","bạn"], ops:["bạn","bàn","ban"], em:"🧑‍🤝‍🧑",mn:"bạn (bạn bè)"},
+      {co:"tr",vo:"ường",r:"trường", bd:["trờ","ương","trương","huyền","trường"], ops:["trường","trương","trưởng"], em:"🏫",mn:"trường (trường học)"},
+      {co:"c",vo:"ô",r:"cô", bd:["cờ","ô","cô"], ops:["cô","co","cồ"], em:"👩‍🏫",mn:"cô (cô giáo)"},
+      {co:"s",vo:"ách",r:"sách", bd:["sờ","ach","sach","sắc","sách"], ops:["sách","sach","sạch"], em:"📚",mn:"sách (quyển sách)"},
+      {co:"h",vo:"oa",r:"hoa", bd:["hờ","oa","hoa"], ops:["hoa","hòa","hoà"], em:"🌸",mn:"hoa (bông hoa)"},
     ]},
 ];
 
@@ -336,7 +357,7 @@ const TONE_SHORT={à:"huyền",á:"sắc",ả:"hỏi",ã:"ngã",ạ:"nặng",ằ
 
 function getViVoice(){const a=window.speechSynthesis?.getVoices()||[];const v=a.filter(x=>x.lang.startsWith("vi"));if(!v.length)return null;return v.find(x=>/nam|female|south/i.test(x.name))||v.find(x=>/wavenet-[bd]|neural2-[bd]/i.test(x.name))||v[1]||v[0];}
 function speakWord(text,rate=0.8){if(!("speechSynthesis"in window))return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text);const vi=getViVoice();if(vi)u.voice=vi;u.lang="vi-VN";u.rate=rate;u.pitch=1.0;u.volume=1.0;window.speechSynthesis.speak(u);}
-function speakPhonics(lesson){const raw=lesson.vo;const base=TONE_STRIP[raw]||raw;const tone=TONE_SHORT[raw];const baseSyl=lesson.co+base;const cons=lesson.co+"ờ";const parts=tone?[cons,base,baseSyl,tone,lesson.r]:[cons,base,lesson.r];speakWord(parts.join(" , "),0.65);}
+function speakPhonics(lesson){const raw=lesson.vo;const base=TONE_STRIP[raw]||raw;const tone=TONE_SHORT[raw];if(lesson.standalone){speakWord(lesson.r,0.6);return;}const baseSyl=lesson.co+base;const cons=lesson.co+"ờ";const parts=tone?[cons,base,baseSyl,tone]:[cons,base,baseSyl];speakWord(parts.join(" , "),0.65);}
 function playChime(ok){try{const ctx=new(window.AudioContext||window.webkitAudioContext)();if(ok){[[523.25,0],[659.25,0.12],[783.99,0.24]].forEach(([f,d])=>{const o=ctx.createOscillator(),g=ctx.createGain();o.type="triangle";o.frequency.value=f;g.gain.setValueAtTime(0,ctx.currentTime+d);g.gain.linearRampToValueAtTime(0.18,ctx.currentTime+d+0.025);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d+0.55);o.connect(g);g.connect(ctx.destination);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.6);});}else{const o=ctx.createOscillator(),g=ctx.createGain();o.type="sine";o.frequency.setValueAtTime(330,ctx.currentTime);o.frequency.linearRampToValueAtTime(220,ctx.currentTime+0.25);g.gain.setValueAtTime(0,ctx.currentTime);g.gain.linearRampToValueAtTime(0.15,ctx.currentTime+0.03);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.35);o.connect(g);g.connect(ctx.destination);o.start();o.stop(ctx.currentTime+0.4);}}catch(e){}}
 
 /* ══════════════════════════════════════════════════════════════
@@ -481,7 +502,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
 
       {/* Stage cards */}
       <div style={{padding:"0 32px 6px"}}>
-        <div style={{fontSize:14,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",marginBottom:10}}>🔗 Chặng Ghép Chữ</div>
+        <div style={{fontSize:14,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",marginBottom:10}}>🔗 Ba Giai Đoạn Ghép Chữ</div>
         <div style={{display:"flex",flexDirection:"column",gap:9}}>
           {stageProgress.map((stage, si) => (
             <div key={stage.id}
@@ -496,7 +517,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
                   {stage.full && <div style={{fontSize:10,background:stage.color,color:C.white,borderRadius:8,padding:"2px 6px",fontFamily:"Nunito, sans-serif",fontWeight:800}}>Hoàn thành!</div>}
                 </div>
                 <div style={{fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:4}}>
-                  {stage.locked ? `🔒 Hoàn thành chặng ${stage.ua} để mở` : `${stage.learned}/${stage.total} bài`}
+                  {stage.locked ? `🔒 Hoàn thành Giai đoạn ${stage.ua} để mở` : `${stage.learned}/${stage.total} bài`}
                 </div>
                 {!stage.locked && (
                   <div style={{background:C.border,borderRadius:6,height:5,overflow:"hidden"}}>
@@ -600,8 +621,8 @@ function AlphabetScreen({ onNavigate, progress, onLearnLetter, setMood, startSta
       <div style={{paddingLeft:32,marginBottom:12,overflowX:"auto",display:"flex",gap:5,flexShrink:0}}>
         {ALPHABET.map((a,i) => {
           const learned = learnedLetters.includes(a.letter);
-          return <div key={a.letter} onClick={() => goTo(i)} style={{width:32,height:32,borderRadius:10,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",cursor:"pointer",background:idx===i?a.color:learned?"#E8F8F4":C.white,color:idx===i?C.white:learned?C.mint:C.textSub,border:`2px solid ${idx===i?a.color:learned?C.mint:C.border}`,transition:"all 0.2s"}}>
-            {learned && idx!==i ? "✓" : a.letter}
+          return <div key={a.letter} onClick={() => goTo(i)} style={{width:32,height:32,borderRadius:10,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",cursor:"pointer",background:idx===i?a.color:learned?"#E8F8F4":C.white,color:idx===i?C.white:learned?C.mint:C.textSub,border:`2px solid ${idx===i?a.color:learned?C.mint:C.border}`,transition:"all 0.2s"}}>
+            {learned && idx!==i ? "✓" : a.lower}
           </div>;
         })}
         <div style={{width:18,flexShrink:0}}/>
@@ -609,10 +630,11 @@ function AlphabetScreen({ onNavigate, progress, onLearnLetter, setMood, startSta
 
       {/* ── Main phonics card ── */}
       <div style={{margin:"0 16px",background:C.white,borderRadius:30,padding:"18px 18px 16px",boxShadow:"0 8px 36px rgba(0,0,0,0.09)",display:"flex",flexDirection:"column",alignItems:"center",transition:"opacity 0.22s, transform 0.22s",opacity:anim?1:0,transform:anim?"scale(1)":"scale(0.95)",flexShrink:0}}>
-        {/* Giant letter */}
-        <div style={{fontSize:96,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",color:letter.color,lineHeight:1,textShadow:`0 6px 22px ${letter.color}44`,animation:anim?"letterPop 0.45s cubic-bezier(0.34,1.56,0.64,1)":"none",marginBottom:6}}>
-          {letter.letter}
+        {/* Giant letter — chữ thường là chính, chữ hoa phụ */}
+        <div style={{fontSize:96,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",color:letter.color,lineHeight:1,textShadow:`0 6px 22px ${letter.color}44`,animation:anim?"letterPop 0.45s cubic-bezier(0.34,1.56,0.64,1)":"none",marginBottom:2}}>
+          {letter.lower}
         </div>
+        <div style={{fontSize:22,fontWeight:800,color:C.textSub,fontFamily:"Baloo 2, Nunito, sans-serif",opacity:0.6,marginBottom:6}}>{letter.letter}</div>
 
         {/* ── Phonics 2-column row ── */}
         <div style={{display:"flex",gap:8,marginBottom:14,width:"100%"}}>
@@ -896,7 +918,7 @@ function RecognitionScreen({ onNavigate }) {
                   animation: isCorrect ? "pop .3s cubic-bezier(.34,1.56,.64,1)" : "none",
                 }}
               >
-                {it.letter.toUpperCase()}
+                {it.letter}
               </button>
             );
           })}
@@ -996,9 +1018,9 @@ function BlendStageMap({stages,progress,onSelect,onBack}){
                 {locked?"🔒":full?"✅":st.badge}
               </div>
               <div style={{flex:1,minWidth:0}}>
-                <div style={{fontSize:13,fontWeight:900,color:locked?C.textSub:C.text,fontFamily:"Nunito, sans-serif"}}>Chặng {st.id}: {st.name}</div>
+                <div style={{fontSize:13,fontWeight:900,color:locked?C.textSub:C.text,fontFamily:"Nunito, sans-serif"}}>Giai đoạn {st.id}: {st.name}</div>
                 <div style={{fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:3}}>
-                  {locked?"🔒 Hoàn thành chặng trước để mở":done+"/"+total+" bài"}
+                  {locked?"🔒 Hoàn thành giai đoạn trước để mở":done+"/"+total+" bài"}
                 </div>
                 {!locked&&<div style={{height:4,background:C.border,borderRadius:4,overflow:"hidden"}}>
                   <div style={{height:"100%",width:Math.round(done/total*100)+"%",background:BL.grn,borderRadius:4,transition:"width .4s"}}/>
@@ -1040,9 +1062,13 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
 
   function drop(val){
     if(dropped)return;setDropped(true);
-    if(val===lesson.r){setCorrect(true);setShowPh(true);playChime(true);setTimeout(()=>speakPhonics(lesson),500);onCorrect(stage.id,lessonIdx);}
+    const a=String(val||"").trim();
+    const b=String(lesson.r||"").trim();
+    if(a===b){setCorrect(true);setShowPh(true);playChime(true);setTimeout(()=>speakPhonics(lesson),500);onCorrect(stage.id,lessonIdx);}
     else{setWA(true);playChime(false);setTimeout(()=>{setDropped(false);setWA(false);},1600);}
   }
+  // Bé có thể TAP chọn đáp án (không cần kéo-thả) — fix lỗi mobile kẹt không qua bước được
+  function tapChoose(val){ if(!correct && !dropped) drop(val); }
   function onDS(e,val){e.dataTransfer.setData("text/plain",val);dragValRef.current=val;}
   function onDO(e){e.preventDefault();dropZRef.current?.classList.add("blend-hover");}
   function onDL(){dropZRef.current?.classList.remove("blend-hover");}
@@ -1058,7 +1084,7 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
       <div style={{padding:"14px 18px 8px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
         <BackBtn onBack={onBack}/>
         <div style={{flex:1}}>
-          <div style={{fontSize:10,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:3}}>Chặng {stage.id} · {stage.name} · {lessonIdx+1}/{total}</div>
+          <div style={{fontSize:10,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:3}}>Giai đoạn {stage.id} · {stage.name} · {lessonIdx+1}/{total}</div>
           <div style={{height:5,background:C.border,borderRadius:5,overflow:"hidden"}}>
             <div style={{height:"100%",width:Math.round(lessonIdx/total*100)+"%",background:"linear-gradient(90deg,"+BL.vow+","+BL.grn+")",borderRadius:5,transition:"width .4s"}}/>
           </div>
@@ -1068,12 +1094,12 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
         <div style={{fontSize:9,fontWeight:800,color:C.textSub,textAlign:"center",marginBottom:14,letterSpacing:".05em"}}>PHỤ ÂM + NGUYÊN ÂM = ?</div>
         <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap"}}>
           <div style={{...tile,background:BL.consBg,borderColor:BL.consBdr}}>
-            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:28,fontWeight:800,color:BL.cons,lineHeight:1}}>{lesson.co.toUpperCase()}</span>
+            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:28,fontWeight:800,color:BL.cons,lineHeight:1}}>{lesson.co}</span>
             <span style={{fontSize:7,fontWeight:800,color:BL.cons,letterSpacing:".04em"}}>PHỤ ÂM</span>
           </div>
           <span style={{fontSize:20,color:C.border,fontWeight:700}}>+</span>
           <div style={{...tile,background:BL.vowBg,borderColor:BL.vowBdr}}>
-            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:28,fontWeight:800,color:BL.vow,lineHeight:1}}>{lesson.vo.toUpperCase()}</span>
+            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:28,fontWeight:800,color:BL.vow,lineHeight:1}}>{lesson.vo}</span>
             <span style={{fontSize:7,fontWeight:800,color:BL.vow,letterSpacing:".04em"}}>NGUYÊN ÂM</span>
           </div>
           <span style={{fontSize:20,color:C.border,fontWeight:700}}>=</span>
@@ -1082,7 +1108,7 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
               borderStyle:correct?"solid":"dashed",cursor:"default",
               animation:wrongAnim?"shake .3s ease":correct?"pop .35s cubic-bezier(.34,1.56,.64,1)":"pulseBorder 1.8s ease-in-out infinite",
               transition:"border-color .2s,background .2s"}}>
-            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:correct?24:22,fontWeight:800,color:correct?BL.grn:BL.res,lineHeight:1}}>{correct?lesson.r.toUpperCase():"?"}</span>
+            <span style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:correct?24:22,fontWeight:800,color:correct?BL.grn:BL.res,lineHeight:1}}>{correct?lesson.r:"?"}</span>
             <span style={{fontSize:7,fontWeight:800,color:correct?BL.grn:BL.res,letterSpacing:".04em"}}>{correct?"✓ ĐÚNG!":"KẾT QUẢ"}</span>
           </div>
         </div>
@@ -1112,9 +1138,9 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
       <div style={{fontSize:10,fontWeight:700,color:C.textSub,padding:"0 18px 7px",letterSpacing:".04em",textAlign:"center"}}>KÉO MẢNH GHÉP VÀO Ô ?</div>
       <div style={{display:"flex",gap:13,justifyContent:"center",padding:"0 32px 10px",flexWrap:"wrap",flexShrink:0}}>
         {opts.map(val=>(
-          <div key={val} draggable onDragStart={e=>onDS(e,val)} onTouchStart={e=>onTS(e,val,e.currentTarget)}
+          <div key={val} draggable onClick={()=>tapChoose(val)} onDragStart={e=>onDS(e,val)} onTouchStart={e=>onTS(e,val,e.currentTarget)}
             style={{width:92,height:60,borderRadius:16,background:C.white,border:"3px solid "+C.border,display:"flex",alignItems:"center",justifyContent:"center",
-              fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,cursor:"grab",
+              fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,cursor:"pointer",
               boxShadow:"0 3px 12px rgba(0,0,0,.09)",opacity:correct?0.3:1,pointerEvents:correct?"none":"auto",
               touchAction:"none",WebkitUserDrag:"element",transition:"transform .15s"}}
             onMouseEnter={e=>{if(!correct){e.currentTarget.style.transform="translateY(-3px)";e.currentTarget.style.borderColor=BL.res;}}}
@@ -1124,7 +1150,7 @@ function BlendLesson({stage,lessonIdx,progress,onCorrect,onNext,onBack}){
       </div>
       <button onClick={()=>speakWord(lesson.r)} style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,margin:"0 auto 6px",padding:"7px 18px",borderRadius:18,background:"none",border:"2px solid "+C.border,fontSize:11,fontWeight:700,color:C.textSub,cursor:"pointer",fontFamily:"Nunito, sans-serif"}}>🔊 Nghe lại</button>
       <button onClick={onNext} style={{margin:"8px 32px 24px",height:54,borderRadius:24,background:correct?BL.grn:C.disabled,border:"none",color:"#fff",fontFamily:"Nunito, sans-serif",fontSize:14,fontWeight:900,cursor:correct?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:correct?1:0.35,transition:"all .3s",flexShrink:0}}>
-        {lessonIdx+1<total?"Bài tiếp theo →":"Hoàn thành chặng 🎯"}
+        {lessonIdx+1<total?"Bài tiếp theo →":"Hoàn thành giai đoạn 🎯"}
       </button>
       <div ref={ghostRef} style={{position:"fixed",pointerEvents:"none",zIndex:9999,display:"none",borderRadius:16,background:C.white,border:"3px solid "+BL.res,alignItems:"center",justifyContent:"center",fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,boxShadow:"0 12px 32px rgba(0,0,0,.25)",transform:"scale(1.08)",opacity:0.9}}/>
     </div>
@@ -1135,8 +1161,8 @@ function BlendStageDone({stage,onContinue,onBack}){
   return(
     <div style={{height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px 22px",gap:16,overflowY:"auto"}}>
       <div style={{fontSize:68,animation:"pop .5s cubic-bezier(.34,1.56,.64,1)"}}>{stage.badge}</div>
-      <div style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,textAlign:"center"}}>Chặng {stage.id} Hoàn Thành!</div>
-      <div style={{fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif",textAlign:"center",maxWidth:280,lineHeight:1.6}}>Bé đã ghép được {stage.lessons.length}/{stage.lessons.length} âm trong chặng "{stage.name}"!</div>
+      <div style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,textAlign:"center"}}>Giai đoạn {stage.id} Hoàn Thành!</div>
+      <div style={{fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif",textAlign:"center",maxWidth:280,lineHeight:1.6}}>Bé đã ghép được {stage.lessons.length}/{stage.lessons.length} âm trong giai đoạn "{stage.name}"!</div>
       <div style={{display:"flex",gap:10,justifyContent:"center"}}>
         {[["🎯",stage.lessons.length,"Bài"],["⭐",stage.lessons.length*10,"Điểm"],[stage.badge,1,"Huy hiệu"]].map(([ic,val,lbl])=>(
           <div key={lbl} style={{background:C.white,border:"2px solid "+C.border,borderRadius:15,padding:"11px 14px",textAlign:"center"}}>
@@ -1147,7 +1173,7 @@ function BlendStageDone({stage,onContinue,onBack}){
         ))}
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:9,width:"100%",maxWidth:320}}>
-        <button onClick={onContinue} style={{height:50,borderRadius:24,background:BL.grn,border:"none",color:"#fff",fontFamily:"Nunito, sans-serif",fontSize:14,fontWeight:900,cursor:"pointer"}}>Chặng tiếp theo →</button>
+        <button onClick={onContinue} style={{height:50,borderRadius:24,background:BL.grn,border:"none",color:"#fff",fontFamily:"Nunito, sans-serif",fontSize:14,fontWeight:900,cursor:"pointer"}}>Giai đoạn tiếp theo →</button>
         <button onClick={onBack} style={{height:50,borderRadius:24,background:C.white,border:"2px solid "+C.border,color:C.textSub,fontFamily:"Nunito, sans-serif",fontSize:13,fontWeight:700,cursor:"pointer"}}>← Về bản đồ</button>
       </div>
     </div>
@@ -1262,7 +1288,7 @@ const GLOBAL_STYLES = `
 ══════════════════════════════════════════════════════════════ */
 const NAV = [
   {id:"home",      icon:"🏠",label:"Trang chủ"},
-  {id:"blend",     icon:"🔗",label:"Ghép âm"},
+  {id:"blend",     icon:"🔗",label:"Ghép chữ"},
   {id:"recognize", icon:"👂",label:"Nhận diện"},
   {id:"alphabet",  icon:"🔤",label:"Chữ cái"},
   {id:"vowels",    icon:"🗣️",label:"Nguyên âm"},
@@ -1313,6 +1339,7 @@ export default function App() {
   }
 
   const handleLearnLetter = useCallback((letter) => {
+    let earnedNewBadge = false;
     setProgress(prev => {
       if (prev.learnedLetters.includes(letter)) return prev;
       const learnedLetters = [...prev.learnedLetters, letter];
@@ -1321,10 +1348,7 @@ export default function App() {
       STAGES.forEach(stage => {
         if (!newBadges.includes(stage.id) && stage.letters.every(l => learnedLetters.includes(l))) {
           newBadges.push(stage.id);
-          setTimeout(() => {
-            setMascotMood("celebrating");
-            setTimeout(() => setMascotMood("happy"), 5000);
-          }, 500);
+          earnedNewBadge = true;
         }
       });
       const stickersOwned = Array.from({length:Math.min(Math.floor(learnedLetters.length/5),STICKERS.length)},(_,i)=>i);
@@ -1332,9 +1356,17 @@ export default function App() {
       if (loadedUid) saveProgress(loadedUid, next);
       return next;
     });
+    // Side-effect (celebrate) tách ra NGOÀI reducer — tránh React #310
+    if (earnedNewBadge) {
+      setTimeout(() => {
+        setMascotMood("celebrating");
+        setTimeout(() => setMascotMood("happy"), 5000);
+      }, 500);
+    }
   }, [loadedUid]);
 
   const handleCompleteBlendLesson = useCallback((stageId, lessonIdx) => {
+    let completedStage = false;
     setProgress(prev => {
       const key = stageId+"-"+lessonIdx;
       if(prev.blendCompleted?.[key]) return prev;
@@ -1343,12 +1375,16 @@ export default function App() {
       const blendStages=[...(prev.blendStages||[])];
       if(stage&&stage.lessons.every((_,i)=>blendCompleted[stageId+"-"+i])&&!blendStages.includes(stageId)){
         blendStages.push(stageId);
-        setTimeout(()=>{setMascotMood("celebrating");setTimeout(()=>setMascotMood("happy"),4000);},400);
+        completedStage = true;
       }
       const next={...prev,blendCompleted,blendStages,blendXP:(prev.blendXP||0)+10,totalStars:(prev.totalStars||0)+2};
       if (loadedUid) saveProgress(loadedUid, next);
       return next;
     });
+    // Side-effect (celebrate) tách ra NGOÀI reducer — tránh React #310
+    if (completedStage) {
+      setTimeout(()=>{setMascotMood("celebrating");setTimeout(()=>setMascotMood("happy"),4000);},400);
+    }
   }, [loadedUid]);
 
   const handleNavigate = (screenId, stageId = null) => {
