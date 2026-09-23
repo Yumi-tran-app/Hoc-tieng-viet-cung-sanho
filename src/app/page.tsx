@@ -888,12 +888,7 @@ function VowelsScreen({ onNavigate }) {
   const tabMeta = VOWEL_TABS.find(t=>t.id===tab);
 
   return (
-    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-      <div style={{padding:"24px 32px 12px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-        <BackBtn onBack={()=>onNavigate("home")}/>
-        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>🗣️ Nguyên Âm</div>
-      </div>
-
+    <div style={{flex:1,display:"flex",flexDirection:"column"}}>
       {/* Tab scroll */}
       <div style={{paddingLeft:16,overflowX:"auto",display:"flex",gap:7,marginBottom:5,flexShrink:0}}>
         {VOWEL_TABS.map(t=>(
@@ -949,10 +944,7 @@ function ConsonantsScreen({ onNavigate }) {
   const list = tab==="simple"?CONSONANTS_SIMPLE:CONSONANTS_COMPOUND;
   const selected = sel!==null?list[sel]:null;
   return (
-    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-      <div style={{padding:"24px 32px 12px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-        <BackBtn onBack={()=>onNavigate("home")}/><div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>📢 Phụ Âm</div>
-      </div>
+    <div style={{flex:1,display:"flex",flexDirection:"column"}}>
       <div style={{paddingLeft:32,display:"flex",gap:8,marginBottom:14,flexShrink:0}}>
         <Pill active={tab==="simple"}   color={C.lavender} onClick={()=>{setTab("simple");setSel(null);}}>17 Phụ âm đơn</Pill>
         <Pill active={tab==="compound"} color={C.peach}    onClick={()=>{setTab("compound");setSel(null);}}>11 Phụ âm ghép</Pill>
@@ -1075,10 +1067,7 @@ function TonesScreen({ onNavigate }) {
   const [key, setKey] = useState(0);
   const tone = sel!==null?TONES[sel]:null;
   return (
-    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
-      <div style={{padding:"24px 32px 12px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-        <BackBtn onBack={()=>onNavigate("home")}/><div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>🎵 Thanh Điệu</div>
-      </div>
+    <div style={{flex:1,display:"flex",flexDirection:"column"}}>
       <div style={{padding:"0 32px 12px",fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif",flexShrink:0}}>Tiếng Việt có <b style={{color:C.text}}>6 thanh điệu</b> — bộ từ "ca, cà, cá, cả, cã, cạ" để phân biệt!</div>
       <div style={{padding:"0 32px",display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,flexShrink:0}}>
         {TONES.map((t,i)=>(
