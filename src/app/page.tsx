@@ -27,7 +27,7 @@ const defaultProgress = {
   earnedBadges: [],     // stage badge ids
   stickersOwned: [],    // sticker indices
   totalStars: 0,
-  // Phòng Ghép Chữ
+  // Phòng Ghép Từ
   blendCompleted: {},   // { "stageId-lessonIdx": true }
   blendStages: [],      // stage ids đã hoàn thành
   blendXP: 0,
@@ -502,7 +502,7 @@ function Pill({ children, active, color=C.mint, onClick }) {
 function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
   const { learnedLetters, streak, totalStars, earnedBadges } = progress;
 
-  // LUỒNG CHÍNH = Phòng Ghép Chữ (BLEND_STAGES theo trình tự phonics)
+  // LUỒNG CHÍNH = Phòng Ghép Từ (BLEND_STAGES theo trình tự phonics)
   const stageProgress = BLEND_STAGES.map(stage => {
     const done = stage.lessons.filter((_,i) => progress.blendCompleted?.[stage.id+"-"+i]).length;
     const total   = stage.lessons.length;
@@ -513,6 +513,10 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
   });
 
   const greeting = streak >= 3 ? `🔥 ${streak} ngày liên tục!` : "Xin chào bé! ☀️";
+
+  // Giai đoạn đang thực hành (đầu tiên chưa hoàn thành trong BLEND_STAGES)
+  const currentStage = stageProgress.find(s => !s.full);
+  const stickers = progress.stickersOwned || [];
 
   const mascotMsg = mascotMood === "celebrating" ? "Bé học giỏi quá! 🎉"
                   : mascotMood === "sleeping"     ? "San Hô đang ngủ... 💤"
@@ -550,14 +554,30 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
         </div>
       </div>
 
-      {/* ── LUỒNG CHÍNH: Phòng Ghép Chữ CTA ── */}
+      {/* ── DASHBOARD THỐNG KÊ ── */}
+      <div style={{margin:"0 32px 18px",borderRadius:20,padding:"13px 3px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",display:"flex",border:"1px solid "+C.border}}>
+        {[
+          {icon:"🔥", val:streak, lbl:"Ngày liên tục", color:C.peach},
+          {icon:currentStage?currentStage.badge:"🎯", val:currentStage?("Giai đoạn "+currentStage.id):"Xong!", lbl:"Đang thực hành", color:C.mint},
+          {icon:"🏅", val:earnedBadges.length, lbl:"Huy chương", color:"#B8A1FF"},
+          {icon:"🎨", val:stickers.length, lbl:"Sticker", color:"#FF9EB5"},
+        ].map((s,i)=>(
+          <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2,borderRight:i<3?"1px solid "+C.border:"none"}}>
+            <div style={{fontSize:16}}>{s.icon}</div>
+            <div style={{fontSize:15,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",lineHeight:1.1,textAlign:"center"}}>{s.val}</div>
+            <div style={{fontSize:8.5,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>{s.lbl}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── LUỒNG CHÍNH: Phòng Ghép Từ CTA ── */}
       <div style={{padding:"0 32px 6px"}}>
         <div onClick={() => onNavigate("blend")} style={{width:"100%",borderRadius:22,padding:"16px 18px",background:"linear-gradient(135deg, #FF9EB5, #FF6859)",display:"flex",alignItems:"center",gap:13,boxShadow:"0 6px 24px rgba(255,104,89,0.32)",cursor:"pointer",transition:"transform .15s"}}
           onMouseEnter={e=>e.currentTarget.style.transform="translateY(-2px)"}
           onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
           <div style={{width:52,height:52,borderRadius:16,background:"rgba(255,255,255,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>🔗</div>
           <div style={{flex:1}}>
-            <div style={{fontSize:15,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Phòng Ghép Chữ</div>
+            <div style={{fontSize:15,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Phòng Ghép Từ</div>
             <div style={{fontSize:11,color:"rgba(255,255,255,0.88)",marginTop:2,fontFamily:"Nunito, sans-serif"}}>Ráp phụ âm + nguyên âm thành vần — học mà chơi!</div>
           </div>
           <div style={{fontSize:22,color:"rgba(255,255,255,0.9)",fontWeight:900}}>›</div>
@@ -580,7 +600,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
 
       {/* Stage cards */}
       <div style={{padding:"0 32px 6px"}}>
-        <div style={{fontSize:14,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",marginBottom:10}}>🔗 Ba Giai Đoạn Ghép Chữ</div>
+        <div style={{fontSize:14,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",marginBottom:10}}>🔗 Ba Giai Đoạn Ghép Từ</div>
         <div style={{display:"flex",flexDirection:"column",gap:9}}>
           {stageProgress.map((stage, si) => (
             <div key={stage.id}
@@ -820,6 +840,43 @@ const TAB_DESC = {
   quad:"Vần 4 chữ — nguyên âm kết hợp với phụ âm cuối",
   quint:"⚠️ Nội dung nâng cao dành cho phụ huynh & giáo viên tham khảo",
 };
+
+/* ══════════════════════════════════════════════════════════════
+   NHẬN DIỆN — container 4 tab con (Nguyên âm / Phụ âm / Thanh điệu / Luyện nghe)
+══════════════════════════════════════════════════════════════ */
+function RecognitionHome({ onNavigate }) {
+  const [tab, setTab] = useState("vowels");
+  const tabs = [
+    {id:"vowels",     label:"Nguyên âm",  icon:"🗣️", color:"#FFB870"},
+    {id:"consonants", label:"Phụ âm",     icon:"📢", color:"#B8A1FF"},
+    {id:"tones",      label:"Thanh điệu", icon:"🎵", color:"#6EC6B3"},
+    {id:"listen",     label:"Luyện nghe", icon:"👂", color:"#FF9EB5"},
+  ];
+  return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <div style={{padding:"20px 32px 10px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+        <BackBtn onBack={()=>onNavigate("home")}/>
+        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>👂 Nhận Diện</div>
+      </div>
+      {/* Tab bar */}
+      <div style={{padding:"0 16px 8px",display:"flex",gap:8,flexShrink:0,overflowX:"auto"}}>
+        {tabs.map(t=>(
+          <div key={t.id} onClick={()=>setTab(t.id)}
+            style={{flexShrink:0,borderRadius:16,padding:"8px 16px",cursor:"pointer",background:tab===t.id?t.color:C.white,border:`2px solid ${tab===t.id?t.color:C.border}`,color:tab===t.id?C.white:C.textSub,fontSize:13,fontWeight:800,fontFamily:"Nunito, sans-serif",display:"flex",alignItems:"center",gap:6,transition:"all .2s",boxShadow:tab===t.id?`0 3px 12px ${t.color}55`:"none"}}>
+            <span style={{fontSize:15}}>{t.icon}</span>{t.label}
+          </div>
+        ))}
+      </div>
+      {/* Nội dung tab (các màn con giữ header + BackBtn riêng để nhận diện rõ từng phần) */}
+      <div style={{flex:1,display:"flex",flexDirection:"column"}}>
+        {tab==="vowels"     && <VowelsScreen     onNavigate={onNavigate}/>}
+        {tab==="consonants" && <ConsonantsScreen onNavigate={onNavigate}/>}
+        {tab==="tones"      && <TonesScreen      onNavigate={onNavigate}/>}
+        {tab==="listen"     && <RecognitionScreen onNavigate={onNavigate}/>}
+      </div>
+    </div>
+  );
+}
 
 function VowelsScreen({ onNavigate }) {
   const [tab, setTab] = useState("simple");
@@ -1068,7 +1125,7 @@ function TonesScreen({ onNavigate }) {
 }
 
 /* ══════════════════════════════════════════════════════════════
-   BLEND SCREEN — Phòng Ghép Chữ (tích hợp)
+   BLEND SCREEN — Phòng Ghép Từ (tích hợp)
 ══════════════════════════════════════════════════════════════ */
 const BL={cons:"#D94F3A",consBg:"#FEF0EE",consBdr:"#F4B5AB",vow:"#2D87B8",vowBg:"#EBF6FC",vowBdr:"#97CDE6",res:"#E8900A",resBg:"#FFF5E6",resBdr:"#F9C87A",grn:"#2D9E68",grnBg:"#EAFAF3"};
 
@@ -1077,7 +1134,7 @@ function BlendStageMap({stages,progress,onSelect,onBack}){
     <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",overflowY:"auto"}}>
       <div style={{padding:"14px 18px 10px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
         <BackBtn onBack={onBack}/>
-        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>🔗 Phòng Ghép Chữ</div>
+        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>🔗 Phòng Ghép Từ</div>
       </div>
       <div style={{padding:"0 32px 12px",fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>Kéo mảnh ghép vào ô <b>?</b> — nhịp vần chuẩn tiểu học!</div>
       <div style={{padding:"0 32px",display:"flex",flexDirection:"column",gap:9}}>
@@ -1524,13 +1581,10 @@ const GLOBAL_STYLES = `
 ══════════════════════════════════════════════════════════════ */
 const NAV = [
   {id:"home",      icon:"🏠",label:"Trang chủ"},
-  {id:"blend",     icon:"🔗",label:"Ghép chữ"},
-  {id:"sentence",  icon:"📝",label:"Ghép câu"},
   {id:"recognize", icon:"👂",label:"Nhận diện"},
+  {id:"blend",     icon:"🔗",label:"Ghép từ"},
+  {id:"sentence",  icon:"📝",label:"Ghép câu"},
   {id:"alphabet",  icon:"🔤",label:"Chữ cái"},
-  {id:"vowels",    icon:"🗣️",label:"Nguyên âm"},
-  {id:"consonants",icon:"📢",label:"Phụ âm"},
-  {id:"tones",     icon:"🎵",label:"Thanh điệu"},
 ];
 
 export default function App() {
@@ -1752,12 +1806,9 @@ export default function App() {
         <div style={{maxWidth:900,margin:"0 auto",minHeight:"100%",display:"flex",flexDirection:"column"}}>
           {screen==="home"       && <HomeScreen       onNavigate={handleNavigate} progress={progress} setMood={setMascotMood} mascotMood={mascotMood}/>}
           {screen==="alphabet"   && <AlphabetScreen   onNavigate={handleNavigate} progress={progress} onLearnLetter={handleLearnLetter} setMood={setMascotMood} startStage={startStage}/>}
-          {screen==="vowels"     && <VowelsScreen     onNavigate={handleNavigate}/>}
-          {screen==="consonants" && <ConsonantsScreen onNavigate={handleNavigate}/>}
-          {screen==="tones"      && <TonesScreen      onNavigate={handleNavigate}/>}
+          {screen==="recognize"  && <RecognitionHome  onNavigate={handleNavigate}/>}
           {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson}/>}
           {screen==="sentence"   && <SentenceScreen   onNavigate={handleNavigate} progress={progress} onCompleteSentence={handleCompleteSentence}/>}
-          {screen==="recognize"  && <RecognitionScreen onNavigate={handleNavigate}/>}
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
         </div>
       </main>
