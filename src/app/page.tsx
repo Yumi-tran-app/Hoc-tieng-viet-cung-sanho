@@ -31,6 +31,9 @@ const defaultProgress = {
   blendCompleted: {},   // { "stageId-lessonIdx": true }
   blendStages: [],      // stage ids đã hoàn thành
   blendXP: 0,
+  // Phòng Ghép Câu
+  sentenceCompleted: {},   // { "stageId-idx": true }
+  sentenceStages: [],      // stage ids đã hoàn thành
 };
 
 function storageKeyFor(userId) {
@@ -352,6 +355,67 @@ const BLEND_STAGES = [
     ]},
 ];
 
+
+/* ══════════════════════════════════════════════════════════════
+   PHÒNG GHÉP CÂU — sắp xếp từ thành câu đúng trật tự
+   5 giai đoạn tương ứng trình độ (mở khoá theo level, ua = stage trước)
+   Mỗi câu: words = thứ tự đúng; hiển thị xáo trộn, bé chạm chọn theo thứ tự
+══════════════════════════════════════════════════════════════ */
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  // Đảm bảo không trùng thứ tự gốc (nếu >1 phần tử)
+  if(a.length>1 && a.every((v,i)=>v===arr[i])) return shuffleArr(arr);
+  return a;
+}
+const SENTENCE_STAGES = [
+  { id:1, name:"Giai đoạn 1 · Câu 2-3 từ", badge:"🌱", color:"#2D9E68", sub:"Bà bế bé",
+    sentences:[
+      { words:["A","bà"], emoji:"👵", mn:"A, bà!" },
+      { words:["Bé","be"], emoji:"👶", mn:"Bé be bé." },
+      { words:["Bà","bế","bé"], emoji:"🤱", mn:"Bà bế bé." },
+      { words:["Bé","ăn","cá"], emoji:"🐟", mn:"Bé ăn cá." },
+      { words:["Cô","đi","xe"], emoji:"🚗", mn:"Cô đi xe." },
+      { words:["Bố","có","cờ"], emoji:"🚩", mn:"Bố có cờ." },
+    ]},
+  { id:2, name:"Giai đoạn 2 · Câu 3-4 từ", badge:"🌿", color:"#2D87B8", sub:"Phụ âm ghép", ua:1,
+    sentences:[
+      { words:["Bà","chỉ","bế","bé"], emoji:"👵", mn:"Bà chỉ bế bé." },
+      { words:["Bé","đi","chợ","cá"], emoji:"🏪", mn:"Bé đi chợ cá." },
+      { words:["Nhà","bé","có","ghê"], emoji:"🏠", mn:"Nhà bé có ghế." },
+      { words:["Bé","chỉ","nghi","nhà"], emoji:"😴", mn:"Bé chỉ nghỉ nhà." },
+      { words:["Bà","cho","bé","quả"], emoji:"🍎", mn:"Bà cho bé quả." },
+      { words:["Chú","thỏ","tre","cây"], emoji:"🐇", mn:"Chú thỏ tre cây." },
+    ]},
+  { id:3, name:"Giai đoạn 3 · Câu 4-5 từ", badge:"🌳", color:"#E8900A", sub:"Vần âm cuối", ua:2,
+    sentences:[
+      { words:["Bé","ăn","cam","chín"], emoji:"🍊", mn:"Bé ăn cam chín." },
+      { words:["Nấm","mọc","ở","gốc","cây"], emoji:"🍄", mn:"Nấm mọc ở gốc cây." },
+      { words:["Tháp","cao","ở","làng","tóc"], emoji:"🗼", mn:"Tháp cao ở làng tóc." },
+      { words:["Gấc","chín","đỏ","tươi"], emoji:"🎃", mn:"Gấc chín đỏ tươi." },
+      { words:["Con","cóc","ngồi","hốc","cây"], emoji:"🐸", mn:"Con cóc ngồi hốc cây." },
+      { words:["Xà","kênh","bắc","sang","bờ"], emoji:"🏗️", mn:"Xà kênh bắc sang bờ." },
+    ]},
+  { id:4, name:"Giai đoạn 4 · Câu 5-6 từ", badge:"🌼", color:"#7B5EA7", sub:"Nguyên âm đôi", ua:3,
+    sentences:[
+      { words:["Gà","mái","mơ","bờ","ao"], emoji:"🐔", mn:"Gà mái mơ bờ ao." },
+      { words:["Máy","bay","lượn","trên","trời"], emoji:"✈️", mn:"Máy bay lượn trên trời." },
+      { words:["Cái","còi","kêu","te","te"], emoji:"🔔", mn:"Cái còi kêu te te." },
+      { words:["Ngôi","sao","sáng","rực","trời"], emoji:"⭐", mn:"Ngôi sao sáng rực trời." },
+      { words:["Con","hươu","uống","nước","suối"], emoji:"🦌", mn:"Con hươu uống nước suối." },
+      { words:["Bé","chia","quà","cho","mẹ"], emoji:"🎁", mn:"Bé chia quà cho mẹ." },
+    ]},
+  { id:5, name:"Giai đoạn 5 · Ôn tập & đọc đoạn", badge:"👑", color:"#D94F3A", sub:"Đọc đoạn 30-50 từ", ua:4,
+    sentences:[
+      { words:["Bạn","bé","đọc","sách","rất","giỏi"], emoji:"📖", mn:"Bạn bé đọc sách rất giỏi." },
+      { words:["Cô","giáo","dạy","bé","viết","chữ"], emoji:"👩‍🏫", mn:"Cô giáo dạy bé viết chữ." },
+      { words:["Bé","cùng","bạn","chơi","trong","sân","trường"], emoji:"🏫", mn:"Bé cùng bạn chơi trong sân trường." },
+      { words:["Mùa","hè","đến","bé","được","nghỉ","hè"], emoji:"☀️", mn:"Mùa hè đến, bé được nghỉ hè." },
+      { words:["Chú","bộ","đội","đang","vẽ","bản","đồ"], emoji:"🗺️", mn:"Chú bộ đội đang vẽ bản đồ." },
+      { words:["Bà","kể","chuyện","cho","bé","nghe"], emoji:"📖", mn:"Bà kể chuyện cho bé nghe." },
+    ]},
+];
+
 const TONE_STRIP={à:"a",á:"a",ả:"a",ã:"a",ạ:"a",ằ:"ă",ắ:"ă",ẳ:"ă",ẵ:"ă",ặ:"ă",ầ:"â",ấ:"â",ẩ:"â",ẫ:"â",ậ:"â",è:"e",é:"e",ẻ:"e",ẽ:"e",ẹ:"e",ề:"ê",ế:"ê",ể:"ê",ễ:"ê",ệ:"ê",ì:"i",í:"i",ỉ:"i",ĩ:"i",ị:"i",ò:"o",ó:"o",ỏ:"o",õ:"o",ọ:"o",ồ:"ô",ố:"ô",ổ:"ô",ỗ:"ô",ộ:"ô",ờ:"ơ",ớ:"ơ",ở:"ơ",ỡ:"ơ",ợ:"ơ",ù:"u",ú:"u",ủ:"u",ũ:"u",ụ:"u",ừ:"ư",ứ:"ư",ử:"ư",ữ:"ư",ự:"ư",ỳ:"y",ý:"y",ỷ:"y",ỹ:"y",ỵ:"y"};
 const TONE_SHORT={à:"huyền",á:"sắc",ả:"hỏi",ã:"ngã",ạ:"nặng",ằ:"huyền",ắ:"sắc",ẳ:"hỏi",ẵ:"ngã",ặ:"nặng",ầ:"huyền",ấ:"sắc",ẩ:"hỏi",ẫ:"ngã",ậ:"nặng",è:"huyền",é:"sắc",ẻ:"hỏi",ẽ:"ngã",ẹ:"nặng",ề:"huyền",ế:"sắc",ể:"hỏi",ễ:"ngã",ệ:"nặng",ì:"huyền",í:"sắc",ỉ:"hỏi",ĩ:"ngã",ị:"nặng",ò:"huyền",ó:"sắc",ỏ:"hỏi",õ:"ngã",ọ:"nặng",ồ:"huyền",ố:"sắc",ổ:"hỏi",ỗ:"ngã",ộ:"nặng",ờ:"huyền",ớ:"sắc",ở:"hỏi",ỡ:"ngã",ợ:"nặng",ù:"huyền",ú:"sắc",ủ:"hỏi",ũ:"ngã",ụ:"nặng",ừ:"huyền",ứ:"sắc",ử:"hỏi",ữ:"ngã",ự:"nặng",ỳ:"huyền",ý:"sắc",ỷ:"hỏi",ỹ:"ngã",ỵ:"nặng"};
 
@@ -495,6 +559,20 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
           <div style={{flex:1}}>
             <div style={{fontSize:15,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Phòng Ghép Chữ</div>
             <div style={{fontSize:11,color:"rgba(255,255,255,0.88)",marginTop:2,fontFamily:"Nunito, sans-serif"}}>Ráp phụ âm + nguyên âm thành vần — học mà chơi!</div>
+          </div>
+          <div style={{fontSize:22,color:"rgba(255,255,255,0.9)",fontWeight:900}}>›</div>
+        </div>
+      </div>
+
+      {/* ── LUỒNG CHÍNH: Phòng Ghép Câu CTA ── */}
+      <div style={{padding:"0 32px 6px"}}>
+        <div onClick={() => onNavigate("sentence")} style={{width:"100%",borderRadius:22,padding:"16px 18px",background:"linear-gradient(135deg, #B8A1FF, #7B5EA7)",display:"flex",alignItems:"center",gap:13,boxShadow:"0 6px 24px rgba(123,94,167,0.32)",cursor:"pointer",transition:"transform .15s"}}
+          onMouseEnter={e=>e.currentTarget.style.transform="translateY(-2px)"}
+          onMouseLeave={e=>e.currentTarget.style.transform="translateY(0)"}>
+          <div style={{width:52,height:52,borderRadius:16,background:"rgba(255,255,255,0.22)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,flexShrink:0}}>📝</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:15,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",lineHeight:1.2}}>Phòng Ghép Câu</div>
+            <div style={{fontSize:11,color:"rgba(255,255,255,0.88)",marginTop:2,fontFamily:"Nunito, sans-serif"}}>Xếp từ thành câu — tập đọc trơn từng câu!</div>
           </div>
           <div style={{fontSize:22,color:"rgba(255,255,255,0.9)",fontWeight:900}}>›</div>
         </div>
@@ -1195,6 +1273,164 @@ function BlendScreen({onNavigate,progress,onCompleteBlendLesson}){
 
 
 /* ══════════════════════════════════════════════════════════════
+   PHÒNG GHÉP CÂU — sắp xếp từ thành câu
+══════════════════════════════════════════════════════════════ */
+const SC = {res:"#E8900A",resBg:"#FFF5E6",resBdr:"#F9C87A",grn:"#2D9E68",grnBg:"#EAFAF3",wordBg:"#FFFFFF"};
+
+function SentenceStageMap({onNavigate,progress,onSelect}){
+  return(
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+      <div style={{padding:"14px 18px 10px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+        <BackBtn onBack={()=>onNavigate("home")}/>
+        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>📝 Phòng Ghép Câu</div>
+      </div>
+      <div style={{padding:"0 32px 12px",fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>Chạm các từ theo đúng thứ tự để tạo thành câu hoàn chỉnh!</div>
+      <div style={{padding:"0 32px",display:"flex",flexDirection:"column",gap:9}}>
+        {SENTENCE_STAGES.map((st,si)=>{
+          const done=st.sentences.filter((_,i)=>progress.sentenceCompleted?.[st.id+"-"+i]).length;
+          const total=st.sentences.length;
+          const locked=st.ua&&!(progress.sentenceStages||[]).includes(st.ua);
+          const full=done===total&&total>0;
+          return(
+            <div key={st.id} onClick={()=>!locked&&onSelect(st.id)}
+              style={{background:locked?"#F8F8F8":C.white,borderRadius:18,padding:"12px 14px",display:"flex",alignItems:"center",gap:13,
+                boxShadow:locked?"none":"0 2px 14px rgba(0,0,0,0.07)",cursor:locked?"not-allowed":"pointer",
+                opacity:locked?0.5:1,border:"2px solid "+(locked?C.border:full?SC.grn:"transparent"),
+                animation:"fadeSlideIn 0.3s ease "+(si*0.07)+"s both"}}>
+              <div style={{width:46,height:46,borderRadius:14,background:locked?"#F0F0F0":st.color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>
+                {locked?"🔒":full?"✅":st.badge}
+              </div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontSize:13,fontWeight:900,color:locked?C.textSub:C.text,fontFamily:"Nunito, sans-serif"}}>{st.name}</div>
+                <div style={{fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:3}}>
+                  {locked?"🔒 Hoàn thành giai đoạn trước để mở":done+"/"+total+" câu"}
+                </div>
+                {!locked&&<div style={{height:4,background:C.border,borderRadius:4,overflow:"hidden"}}>
+                  <div style={{height:"100%",width:Math.round(done/total*100)+"%",background:SC.grn,borderRadius:4,transition:"width .4s"}}/>
+                </div>}
+              </div>
+              {!locked&&!full&&<div style={{width:28,height:28,borderRadius:14,background:st.color,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                <span style={{color:C.white,fontSize:14,fontWeight:900}}>›</span>
+              </div>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function SentenceLesson({stage,idx,onCorrect,onNext,onBack}){
+  const sent=stage.sentences[idx];
+  const total=stage.sentences.length;
+  // Xáo trộn từ — dùng useRef để giữ ổn định qua các lần render
+  const [shuffled,setShuffled]=useState(()=>shuffleArr(sent.words));
+  const [built,setBuilt]=useState([]);      // các từ đã chọn (đúng thứ tự)
+  const [used,setUsed]=useState([]);        // index đã dùng
+  const [correct,setCorrect]=useState(false);
+  const [wrongAnim,setWA]=useState(false);
+
+  useEffect(()=>{setShuffled(shuffleArr(sent.words));setBuilt([]);setUsed([]);setCorrect(false);setWA(false);},[idx,stage.id]);
+
+  function tapWord(i){
+    if(correct||used.includes(i))return;
+    const word=shuffled[i];
+    const expect=sent.words[built.length];
+    if(word===expect){
+      const nb=[...built,word];
+      setBuilt(nb);setUsed([...used,i]);
+      if(nb.length===sent.words.length){
+        setCorrect(true);playChime(true);
+        setTimeout(()=>speakWord(sent.words.join(" "),0.75),300);
+        onCorrect(stage.id,idx);
+      }
+    }else{
+      setWA(true);playChime(false);
+      setTimeout(()=>setWA(false),700);
+    }
+  }
+
+  return(
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column"}}>
+      <div style={{padding:"14px 18px 8px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+        <BackBtn onBack={onBack}/>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,fontWeight:700,color:C.textSub,fontFamily:"Nunito, sans-serif",marginBottom:3}}>Giai đoạn {stage.id} · {stage.name} · {idx+1}/{total}</div>
+          <div style={{height:5,background:C.border,borderRadius:5,overflow:"hidden"}}>
+            <div style={{height:"100%",width:Math.round(idx/total*100)+"%",background:"linear-gradient(90deg,"+SC.res+","+SC.grn+")",borderRadius:5,transition:"width .4s"}}/>
+          </div>
+        </div>
+      </div>
+
+      <div style={{margin:"0 24px 20px",background:C.white,borderRadius:24,padding:"24px 20px 20px",boxShadow:"0 6px 28px rgba(0,0,0,0.09)",flexShrink:0}}>
+        <div style={{fontSize:9,fontWeight:800,color:C.textSub,textAlign:"center",marginBottom:12,letterSpacing:".05em"}}>XẾP TỪ THÀNH CÂU</div>
+        {/* Ô câu đang xây */}
+        <div style={{minHeight:64,background:correct?SC.grnBg:"#FBF8F2",borderRadius:16,border:"2px dashed "+(correct?SC.grn:SC.resBdr),display:"flex",alignItems:"center",justifyContent:"center",gap:8,flexWrap:"wrap",padding:"10px 14px",animation:correct?"pop .35s cubic-bezier(.34,1.56,.64,1)":"none",transition:"background .3s,border-color .3s"}}>
+          {built.length===0 && !correct && <span style={{fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>Chạm từ để xếp câu…</span>}
+          {built.map((w,i)=>(
+            <span key={i} style={{padding:"6px 13px",borderRadius:13,background:SC.res,color:C.white,fontSize:17,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",animation:"letterPop .25s ease"}}>{w}</span>
+          ))}
+          {correct && <span style={{marginLeft:4,fontSize:20}}>✅</span>}
+        </div>
+        {correct&&sent.emoji&&(
+          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:9,marginTop:12,background:"#F0EDE5",borderRadius:13,padding:"8px 14px",animation:"fadeSlideIn .4s ease"}}>
+            <span style={{fontSize:24}}>{sent.emoji}</span>
+            <span style={{fontSize:13,fontWeight:800,color:C.text,fontFamily:"Nunito, sans-serif"}}>{sent.mn}</span>
+          </div>
+        )}
+      </div>
+
+      <div style={{fontSize:10,fontWeight:700,color:C.textSub,padding:"0 18px 7px",letterSpacing:".04em",textAlign:"center"}}>CHẠM TỪ THEO THỨ TỰ ĐÚNG</div>
+      <div style={{display:"flex",gap:11,justifyContent:"center",padding:"0 24px 10px",flexWrap:"wrap",flexShrink:0,animation:wrongAnim?"shake .3s ease":"none"}}>
+        {shuffled.map((w,i)=>{
+          const isUsed=used.includes(i);
+          return(
+            <div key={i} onClick={()=>tapWord(i)}
+              style={{padding:"10px 16px",borderRadius:15,background:isUsed?"#EFEFEF":C.white,border:"2px solid "+(isUsed?C.border:SC.resBdr),fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:17,fontWeight:800,color:isUsed?C.disabled:C.text,cursor:isUsed?"default":"pointer",opacity:isUsed?0.45:1,boxShadow:isUsed?"none":"0 3px 12px rgba(0,0,0,.08)",transition:"transform .15s",transform:isUsed?"scale(0.95)":"scale(1)"}}
+              onMouseEnter={e=>{if(!isUsed&&!correct)e.currentTarget.style.transform="translateY(-2px)";}}
+              onMouseLeave={e=>{if(!isUsed&&!correct)e.currentTarget.style.transform="scale(1)";}}
+            >{w}</div>
+          );
+        })}
+      </div>
+
+      <button onClick={()=>speakWord(sent.words.join(" "))} style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,margin:"0 auto 6px",padding:"7px 18px",borderRadius:18,background:"none",border:"2px solid "+C.border,fontSize:11,fontWeight:700,color:C.textSub,cursor:"pointer",fontFamily:"Nunito, sans-serif"}}>🔊 Nghe câu</button>
+      <button onClick={onNext} style={{margin:"8px 32px 24px",height:54,borderRadius:24,background:correct?SC.grn:C.disabled,border:"none",color:"#fff",fontFamily:"Nunito, sans-serif",fontSize:14,fontWeight:900,cursor:correct?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",gap:8,opacity:correct?1:0.35,transition:"all .3s",flexShrink:0}}>
+        {idx+1<total?"Câu tiếp theo →":"Hoàn thành giai đoạn 🎯"}
+      </button>
+    </div>
+  );
+}
+
+function SentenceStageDone({stage,onContinue,onBack}){
+  return(
+    <div style={{height:"100%",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"28px 22px",gap:16,overflowY:"auto"}}>
+      <div style={{fontSize:68,animation:"pop .5s cubic-bezier(.34,1.56,.64,1)"}}>{stage.badge}</div>
+      <div style={{fontFamily:"Baloo 2, Nunito, sans-serif",fontSize:24,fontWeight:800,color:C.text,textAlign:"center"}}>Giai đoạn {stage.id} Hoàn Thành!</div>
+      <div style={{fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif",textAlign:"center",maxWidth:280,lineHeight:1.6}}>Bé đã xếp đúng {stage.sentences.length}/{stage.sentences.length} câu trong giai đoạn "{stage.name}"!</div>
+      <div style={{display:"flex",flexDirection:"column",gap:9,width:"100%",maxWidth:320}}>
+        <button onClick={onContinue} style={{height:50,borderRadius:24,background:SC.grn,border:"none",color:"#fff",fontFamily:"Nunito, sans-serif",fontSize:14,fontWeight:900,cursor:"pointer"}}>Giai đoạn tiếp theo →</button>
+        <button onClick={onBack} style={{height:50,borderRadius:24,background:C.white,border:"2px solid "+C.border,color:C.textSub,fontFamily:"Nunito, sans-serif",fontSize:13,fontWeight:700,cursor:"pointer"}}>← Về bản đồ</button>
+      </div>
+    </div>
+  );
+}
+
+function SentenceScreen({onNavigate,progress,onCompleteSentence}){
+  const [view,setView]=useState("map");
+  const [stageId,setStId]=useState(null);
+  const [idx,setIdx]=useState(0);
+  const stage=SENTENCE_STAGES.find(s=>s.id===stageId);
+  function startStage(id){const st=SENTENCE_STAGES.find(s=>s.id===id);const first=st.sentences.findIndex((_,i)=>!progress.sentenceCompleted?.[id+"-"+i]);setStId(id);setIdx(first<0?0:first);setView("lesson");}
+  function handleNext(){if(idx+1>=stage.sentences.length)setView("done");else setIdx(i=>i+1);}
+  function handleContinue(){const next=SENTENCE_STAGES.find(s=>s.id===stageId+1);if(next)startStage(next.id);else setView("map");}
+  if(view==="map"||!stage)return <SentenceStageMap onNavigate={onNavigate} progress={progress} onSelect={startStage}/>;
+  if(view==="lesson")return <SentenceLesson stage={stage} idx={idx} onCorrect={onCompleteSentence} onNext={handleNext} onBack={()=>setView("map")}/>;
+  if(view==="done")return <SentenceStageDone stage={stage} onContinue={handleContinue} onBack={()=>setView("map")}/>;
+}
+
+
+/* ══════════════════════════════════════════════════════════════
    REWARD SCREEN — collection + badges
 ══════════════════════════════════════════════════════════════ */
 const STICKERS = ["🌟","🦋","🌈","🌸","🐬","🦊","🍀","🎈","🌙","☀️","🐣","💐","🎀","🐠","🍓","🌺","🦄","🍄","🦜","🌵"];
@@ -1289,6 +1525,7 @@ const GLOBAL_STYLES = `
 const NAV = [
   {id:"home",      icon:"🏠",label:"Trang chủ"},
   {id:"blend",     icon:"🔗",label:"Ghép chữ"},
+  {id:"sentence",  icon:"📝",label:"Ghép câu"},
   {id:"recognize", icon:"👂",label:"Nhận diện"},
   {id:"alphabet",  icon:"🔤",label:"Chữ cái"},
   {id:"vowels",    icon:"🗣️",label:"Nguyên âm"},
@@ -1382,6 +1619,27 @@ export default function App() {
       return next;
     });
     // Side-effect (celebrate) tách ra NGOÀI reducer — tránh React #310
+    if (completedStage) {
+      setTimeout(()=>{setMascotMood("celebrating");setTimeout(()=>setMascotMood("happy"),4000);},400);
+    }
+  }, [loadedUid]);
+
+  const handleCompleteSentence = useCallback((stageId, idx) => {
+    let completedStage = false;
+    setProgress(prev => {
+      const key = stageId+"-"+idx;
+      if(prev.sentenceCompleted?.[key]) return prev;
+      const sentenceCompleted={...(prev.sentenceCompleted||{}),[key]:true};
+      const stage=SENTENCE_STAGES.find(s=>s.id===stageId);
+      const sentenceStages=[...(prev.sentenceStages||[])];
+      if(stage&&stage.sentences.every((_,i)=>sentenceCompleted[stageId+"-"+i])&&!sentenceStages.includes(stageId)){
+        sentenceStages.push(stageId);
+        completedStage = true;
+      }
+      const next={...prev,sentenceCompleted,sentenceStages,totalStars:(prev.totalStars||0)+2};
+      if (loadedUid) saveProgress(loadedUid, next);
+      return next;
+    });
     if (completedStage) {
       setTimeout(()=>{setMascotMood("celebrating");setTimeout(()=>setMascotMood("happy"),4000);},400);
     }
@@ -1498,6 +1756,7 @@ export default function App() {
           {screen==="consonants" && <ConsonantsScreen onNavigate={handleNavigate}/>}
           {screen==="tones"      && <TonesScreen      onNavigate={handleNavigate}/>}
           {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson}/>}
+          {screen==="sentence"   && <SentenceScreen   onNavigate={handleNavigate} progress={progress} onCompleteSentence={handleCompleteSentence}/>}
           {screen==="recognize"  && <RecognitionScreen onNavigate={handleNavigate}/>}
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
         </div>
