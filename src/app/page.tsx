@@ -34,6 +34,9 @@ const defaultProgress = {
   // Phòng Ghép Câu
   sentenceCompleted: {},   // { "stageId-idx": true }
   sentenceStages: [],      // stage ids đã hoàn thành
+  // Hồ sơ bé
+  babyName: "",   // tên bé (in lên giấy chứng nhận)
+  babyAge: "",    // độ tuổi của bé (tham khảo, cá nhân hoá)
 };
 
 function storageKeyFor(userId) {
@@ -389,8 +392,6 @@ function shuffleArr(arr){
 const SENTENCE_STAGES = [
   { id:1, name:"Giai đoạn 1 · Câu 2-3 từ", badge:"🌱", color:"#2D9E68", sub:"Bà bế bé",
     sentences:[
-      { words:["A","bà"], emoji:"👵", mn:"A, bà!" },
-      { words:["Bé","be"], emoji:"👶", mn:"Bé be bé." },
       { words:["Bà","bế","bé"], emoji:"🤱", mn:"Bà bế bé." },
       { words:["Bé","ăn","cá"], emoji:"🐟", mn:"Bé ăn cá." },
       { words:["Cô","đi","xe"], emoji:"🚗", mn:"Cô đi xe." },
@@ -560,7 +561,7 @@ function HomeScreen({ onNavigate, progress, setMood, mascotMood }) {
     return { ...stage, done, full, total, pct, locked, learned: done };
   });
 
-  const greeting = streak >= 3 ? `🔥 ${streak} ngày liên tục!` : "Xin chào bé! ☀️";
+  const greeting = streak >= 3 ? `🔥 ${streak} ngày liên tục!` : `Chào ${progress.babyName || "bé"}! ☀️`;
 
   // Giai đoạn đang thực hành (đầu tiên chưa hoàn thành trong BLEND_STAGES)
   const currentStage = stageProgress.find(s => !s.full);
@@ -1519,6 +1520,53 @@ function SentenceScreen({onNavigate,progress,onCompleteSentence}){
    REWARD SCREEN — collection + badges
 ══════════════════════════════════════════════════════════════ */
 const STICKERS = ["🌟","🦋","🌈","🌸","🐬","🦊","🍀","🎈","🌙","☀️","🐣","💐","🎀","🐠","🍓","🌺","🦄","🍄","🦜","🌵"];
+/* ══════════════════════════════════════════════════════════
+   PROFILE SCREEN — khai báo tên bé + độ tuổi
+══════════════════════════════════════════════════════════ */
+function ProfileScreen({ onNavigate, progress, onSaveProfile }) {
+  const [name, setName] = useState(progress.babyName || "");
+  const [age, setAge] = useState(progress.babyAge || "");
+  const [saved, setSaved] = useState(false);
+
+  function handleSave() {
+    onSaveProfile({ babyName: name.trim(), babyAge: age.trim() });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 1800);
+  }
+
+  return (
+    <div style={{minHeight:"100vh",display:"flex",flexDirection:"column",overflowY:"auto"}}>
+      <div style={{padding:"20px 32px 10px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+        <BackBtn onBack={()=>onNavigate("home")}/>
+        <div style={{fontSize:16,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>👶 Hồ Sơ Bé</div>
+      </div>
+
+      <div style={{padding:"0 32px 8px",fontSize:13,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>Điền tên và tuổi của bé để nhận giấy chứng nhận có tên bé nhé 🐚</div>
+
+      <div style={{margin:"4px 32px 24px",borderRadius:24,padding:"20px 18px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",display:"flex",flexDirection:"column",gap:16}}>
+        <label style={{display:"flex",flexDirection:"column",gap:7}}>
+          <span style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>Tên bé</span>
+          <input value={name} onChange={e=>setName(e.target.value)} placeholder="Ví dụ: Minh Anh"
+            style={{height:48,borderRadius:14,border:`2px solid ${C.border}`,padding:"0 14px",fontSize:15,fontFamily:"Nunito, sans-serif",color:C.text,outline:"none",background:C.bg}}
+            onFocus={e=>e.target.style.borderColor=C.mint} onBlur={e=>e.target.style.borderColor=C.border}/>
+        </label>
+
+        <label style={{display:"flex",flexDirection:"column",gap:7}}>
+          <span style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif"}}>Độ tuổi</span>
+          <input value={age} onChange={e=>setAge(e.target.value)} placeholder="Ví dụ: 6 tuổi" inputMode="text"
+            style={{height:48,borderRadius:14,border:`2px solid ${C.border}`,padding:"0 14px",fontSize:15,fontFamily:"Nunito, sans-serif",color:C.text,outline:"none",background:C.bg}}
+            onFocus={e=>e.target.style.borderColor=C.mint} onBlur={e=>e.target.style.borderColor=C.border}/>
+        </label>
+
+        <button onClick={handleSave} disabled={!name.trim()}
+          style={{height:52,borderRadius:24,background:name.trim()?C.mint:C.disabled,border:"none",cursor:name.trim()?"pointer":"default",fontSize:15,fontWeight:900,color:"#fff",fontFamily:"Nunito, sans-serif",opacity:name.trim()?1:0.45,transition:"all .2s"}}>
+          {saved ? "✅ Đã lưu!" : "Lưu hồ sơ"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function RewardScreen({ onNavigate, progress }) {
   const { learnedLetters, totalStars, streak, earnedBadges, stickersOwned } = progress;
   const stageProgress = STAGES.map(s=>{
@@ -1545,6 +1593,24 @@ function RewardScreen({ onNavigate, progress }) {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Stage badges */}
+      <div style={{padding:"0 32px 16px"}}>
+        <div style={{fontSize:13,fontWeight:900,color:C.text,fontFamily:"Nunito, sans-serif",marginBottom:9}}>📜 Giấy chứng nhận</div>
+        {progress.babyName ? (
+          <div style={{borderRadius:18,padding:"18px 16px",background:"linear-gradient(135deg,#FFFDF4,#FFF6E6)",border:"2px solid #F9C87A",textAlign:"center",boxShadow:"0 4px 18px rgba(232,144,10,0.18)"}}>
+            <div style={{fontSize:26}}>🏅</div>
+            <div style={{fontSize:11,fontWeight:800,color:C.textSub,fontFamily:"Nunito, sans-serif",letterSpacing:".06em",marginTop:4}}>CHỨNG NHẬN HOÀN THÀNH</div>
+            <div style={{fontSize:24,fontWeight:900,color:C.text,fontFamily:"Baloo 2, Nunito, sans-serif",marginTop:6}}>{progress.babyName}</div>
+            <div style={{fontSize:12,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:4,lineHeight:1.5}}>đã hoàn thành xuất sắc hành trình<br/>học Tiếng Việt cùng San Hô 🐚</div>
+            <div style={{fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:10,opacity:0.7}}>⭐ {totalStars} sao · 🔠 {learnedLetters.length} chữ · Giai đoạn {progress.blendStages?.length||0}/3 🎉</div>
+          </div>
+        ) : (
+          <div onClick={()=>onNavigate("profile")} style={{borderRadius:18,padding:"16px",background:C.bg,border:`2px dashed ${C.border}`,textAlign:"center",cursor:"pointer"}}>
+            <div style={{fontSize:13,fontWeight:800,color:C.textSub,fontFamily:"Nunito, sans-serif"}}>Chưa có tên bé — chạm để nhập 👉</div>
+          </div>
+        )}
       </div>
 
       {/* Stage badges */}
@@ -1737,6 +1803,14 @@ export default function App() {
     setStartStage(stageId);
   };
 
+  const handleSaveProfile = useCallback((patch) => {
+    setProgress(prev => {
+      const next = { ...prev, ...patch };
+      if (loadedUid) saveProgress(loadedUid, next);
+      return next;
+    });
+  }, [loadedUid]);
+
   // Chưa mount (SSR/hydrate) → render placeholder trống, tránh hydration mismatch
   if (!mounted) {
     return <div style={{ minHeight: "100vh", background: C.bg }} />;
@@ -1833,10 +1907,11 @@ export default function App() {
         {/* Footer */}
         {sidebarOpen ? (
         <div style={{padding:"12px 16px",borderTop:`1px solid ${C.border}`,fontSize:10,color:C.textSub,fontFamily:"Nunito, sans-serif",lineHeight:1.6}}>
-          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+          <div onClick={()=>setScreen("profile")} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6,cursor:"pointer"}} title="Chỉnh hồ sơ bé">
             <UserButton />
             <div style={{flex:1,minWidth:0}}>
-              <div style={{fontSize:11,fontWeight:800,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{user?.fullName || user?.primaryEmailAddress?.emailAddress || "Bạn nhỏ"}</div>
+              <div style={{fontSize:11,fontWeight:800,color:C.text,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{progress.babyName || user?.fullName || user?.primaryEmailAddress?.emailAddress || "Bạn nhỏ"}</div>
+              {progress.babyAge && <div style={{fontSize:9,fontWeight:700,color:C.mint,fontFamily:"Nunito, sans-serif"}}>{progress.babyAge}</div>}
             </div>
           </div>
           <div style={{fontWeight:700,color:C.text,marginBottom:2}}>Phòng Học Tiếng Việt</div>
@@ -1858,6 +1933,7 @@ export default function App() {
           {screen==="blend"      && <BlendScreen      onNavigate={handleNavigate} progress={progress} onCompleteBlendLesson={handleCompleteBlendLesson}/>}
           {screen==="sentence"   && <SentenceScreen   onNavigate={handleNavigate} progress={progress} onCompleteSentence={handleCompleteSentence}/>}
           {screen==="reward"     && <RewardScreen     onNavigate={handleNavigate} progress={progress}/>}
+          {screen==="profile"    && <ProfileScreen    onNavigate={handleNavigate} progress={progress} onSaveProfile={handleSaveProfile}/>}
         </div>
       </main>
     </div>
