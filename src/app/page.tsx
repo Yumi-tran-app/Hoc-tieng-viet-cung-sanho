@@ -248,6 +248,24 @@ function speak(text, slow = false) {
   window.speechSynthesis.speak(utter);
 }
 
+/* Đọc 2 phần có nhịp ngắt rõ rệt (vd "bờ" — ngắt — "bé").
+   Tách 2 utterance + setTimeout để đảm bảo ngắt ổn định trên mọi TTS,
+   thay vì dựa vào dấu phẩy (thiết bị có thể đọc liền). */
+function speakBreak(a, b) {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  const voices = window.speechSynthesis.getVoices();
+  const vi = voices.find(v => v.lang.startsWith("vi"));
+  const mk = (t) => {
+    const u = new SpeechSynthesisUtterance(t);
+    if (vi) u.voice = vi;
+    u.lang = "vi-VN"; u.rate = 0.65; u.pitch = 1.1;
+    return u;
+  };
+  if (a) { const u1 = mk(a); u1.onend = () => setTimeout(() => { if (b) window.speechSynthesis.speak(mk(b)); }, 420); window.speechSynthesis.speak(u1); }
+  else if (b) { window.speechSynthesis.speak(mk(b)); }
+}
+
 /* ══════════════════════════════════════════════════════════════
    SPELLING VALIDATION
 ══════════════════════════════════════════════════════════════ */
@@ -816,7 +834,7 @@ function VowelDetail({ item }) {
         <div style={{textAlign:"center",fontSize:11,color:C.textSub,fontFamily:"Nunito, sans-serif",fontStyle:"italic",padding:"4px 12px",background:`${C.border}88`,borderRadius:10}}>⚠️ Rất hiếm trong tiếng Việt chuẩn</div>
       ):(
         <div style={{display:"flex",justifyContent:"center"}}>
-          <button onClick={()=>speak(item.v)} style={{padding:"9px 22px",borderRadius:20,background:`linear-gradient(135deg,${item.color},${item.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${item.color}44`}}>🔊 Nghe phát âm</button>
+          <button onClick={()=>speakBreak(item.v, item.example)} style={{padding:"9px 22px",borderRadius:20,background:`linear-gradient(135deg,${item.color},${item.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${item.color}44`}}>🔊 Nghe phát âm</button>
         </div>
       )}
     </div>
@@ -915,7 +933,7 @@ function VowelsScreen({ onNavigate }) {
       </div>
 
       {/* Vowel grid */}
-      <div style={{padding:"0 15px",display:"flex",flexWrap:"wrap",gap:7,flex:1,alignContent:"flex-start",overflowY:"auto"}}>
+      <div style={{padding:"0 15px",display:"flex",flexWrap:"wrap",gap:7,flexShrink:0,alignContent:"flex-start"}}>
         {list.map((item,i)=>{
           const isRare=item.color==="#D6D6D6";
           const fs=item.v.length>=4?13:item.v.length===3?17:20;
@@ -928,7 +946,7 @@ function VowelsScreen({ onNavigate }) {
       </div>
 
       {/* Detail */}
-      <div style={{margin:"14px 32px 24px",borderRadius:24,padding:"13px 15px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",minHeight:112,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,borderTop:`3px solid ${tabMeta?.color||C.mint}`}}>
+      <div style={{margin:"6px 24px 24px",borderRadius:24,padding:"13px 15px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",minHeight:112,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,borderTop:`3px solid ${tabMeta?.color||C.mint}`}}>
         <VowelDetail item={selected}/>
       </div>
     </div>
@@ -949,7 +967,7 @@ function ConsonantsScreen({ onNavigate }) {
         <Pill active={tab==="simple"}   color={C.lavender} onClick={()=>{setTab("simple");setSel(null);}}>17 Phụ âm đơn</Pill>
         <Pill active={tab==="compound"} color={C.peach}    onClick={()=>{setTab("compound");setSel(null);}}>11 Phụ âm ghép</Pill>
       </div>
-      <div style={{padding:"0 32px",display:"flex",flexWrap:"wrap",gap:9,flex:1,alignContent:"flex-start",overflowY:"auto"}}>
+      <div style={{padding:"0 32px",display:"flex",flexWrap:"wrap",gap:9,flexShrink:0,alignContent:"flex-start"}}>
         {list.map((item,i)=>(
           <div key={item.c} onClick={()=>setSel(sel===i?null:i)} style={{minWidth:tab==="compound"?64:50,height:50,borderRadius:14,background:sel===i?item.color:C.white,border:`2px solid ${sel===i?item.color:C.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer",fontSize:tab==="compound"?17:20,fontWeight:900,fontFamily:"Baloo 2, Nunito, sans-serif",color:sel===i?C.white:C.text,padding:"0 10px",boxShadow:sel===i?`0 4px 14px ${item.color}55`:"0 1px 5px rgba(0,0,0,0.06)",transition:"all 0.2s cubic-bezier(0.34,1.56,0.64,1)",transform:sel===i?"scale(1.08)":"scale(1)"}}>
             {item.c}
@@ -957,7 +975,7 @@ function ConsonantsScreen({ onNavigate }) {
           </div>
         ))}
       </div>
-      <div style={{margin:"14px 32px 24px",borderRadius:24,padding:"14px 18px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",minHeight:108,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+      <div style={{margin:"6px 24px 24px",borderRadius:24,padding:"14px 18px",background:C.white,boxShadow:"0 4px 20px rgba(0,0,0,0.08)",minHeight:108,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
         {selected?(
           <div style={{textAlign:"center",width:"100%",animation:"fadeSlideIn 0.3s ease"}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:12,marginBottom:6}}>
@@ -967,7 +985,7 @@ function ConsonantsScreen({ onNavigate }) {
             <div style={{fontSize:14,fontWeight:700,color:C.text,fontFamily:"Nunito, sans-serif"}}>Âm: <span style={{color:selected.color}}>{selected.sound}</span> · Ví dụ: <span style={{color:selected.color}}>{selected.example}</span></div>
             {selected.note&&<div style={{fontSize:11,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:2}}>Ghép từ: <b>{selected.note}</b></div>}
             {selected.ruleNote&&<div style={{marginTop:4,fontSize:10,color:"#B8860B",background:"#FFF3CD",borderRadius:8,padding:"2px 8px",display:"inline-block"}}>💡 {selected.ruleNote}</div>}
-            <button onClick={()=>speak(selected.sound + " " + selected.example)} style={{marginTop:10,padding:"9px 24px",borderRadius:20,background:`linear-gradient(135deg,${selected.color},${selected.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${selected.color}44`}}>🔊 Nghe phát âm</button>
+            <button onClick={()=>speakBreak(selected.sound, selected.example)} style={{marginTop:10,padding:"9px 24px",borderRadius:20,background:`linear-gradient(135deg,${selected.color},${selected.color}BB)`,border:"none",cursor:"pointer",fontSize:14,fontWeight:900,color:C.white,fontFamily:"Nunito, sans-serif",boxShadow:`0 4px 12px ${selected.color}44`}}>🔊 Nghe phát âm</button>
           </div>
         ):(
           <div style={{textAlign:"center"}}><div style={{fontSize:30}}>👆</div><div style={{fontSize:12,color:C.textSub,fontFamily:"Nunito, sans-serif",marginTop:5}}>Chọn một phụ âm để xem</div></div>
